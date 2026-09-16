@@ -94,6 +94,23 @@ body {
   border-radius: 999px;
 }
 .topbar nav a:hover, .topbar nav a:focus-visible { color: var(--ink); background: var(--surface); }
+.lang { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--line-2); border-radius: 999px; flex-shrink: 0; }
+.lang button {
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--ink-2);
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  padding: 4px 9px;
+  min-height: 26px;
+  cursor: pointer;
+}
+.lang button:hover { color: var(--ink); background: var(--surface); }
+.lang button.is-active { color: var(--bg); background: var(--gold); }
+.lang button:focus-visible { outline: 2px solid var(--ice); outline-offset: 2px; }
 
 /* ---------- type ---------- */
 h1, h2 {
@@ -445,8 +462,12 @@ a { color: var(--ice); }
   #chart { height: 580px; }
 }
 @media (max-width: 560px) {
-  .topbar { padding-block: 10px; }
+  /* brand and language toggle share the first row, the section links get a row of their own */
+  .topbar { padding-block: 10px; flex-wrap: wrap; row-gap: 4px; }
+  .lang { order: 2; margin-left: auto; }
+  .topbar nav { order: 3; flex-basis: 100%; justify-content: flex-start; }
   .topbar nav a { padding: 6px 7px; font-size: 0.74rem; }
+  .lang button { padding: 4px 7px; }
   .rhythms { grid-template-columns: 1fr; }
   .rhythms a { grid-template-columns: auto 1fr auto; align-items: baseline; gap: 10px; }
   .rhythms em { margin: 0; }

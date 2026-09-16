@@ -333,32 +333,44 @@ export function climate(e, eps, varpi) {
   };
 }
 
-/** Sun's true longitude at perihelion → approximate calendar date. */
-export function perihelionDate(varpi) {
+/** Sun's true longitude at perihelion → day of the year (0 = 1 January). */
+export function perihelionDayOfYear(varpi) {
   // Sun longitude 0 ≈ 20 March (day 79 of the year).
   const daysFromEquinox = (wrap360(varpi) / 360) * 365.25;
-  const doy = (79 + daysFromEquinox) % 365.25;
-  return dayOfYearToDate(doy);
+  return (79 + daysFromEquinox) % 365.25;
+}
+
+/** Sun's true longitude at perihelion → approximate calendar date (English). */
+export function perihelionDate(varpi) {
+  return dayOfYearToDate(perihelionDayOfYear(varpi));
 }
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MLEN = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-export function dayOfYearToDate(doy) {
+/** Day of the year → { day: 1–31, month: 0–11 }, language-neutral. */
+export function dayOfYearToMonthDay(doy) {
   let d = Math.floor(doy) % 365;
   for (let m = 0; m < 12; m++) {
-    if (d < MLEN[m]) return `${d + 1} ${MONTHS[m]}`;
+    if (d < MLEN[m]) return { day: d + 1, month: m };
     d -= MLEN[m];
   }
-  return '31 Dec';
+  return { day: 31, month: 11 };
+}
+export function dayOfYearToDate(doy) {
+  const { day, month } = dayOfYearToMonthDay(doy);
+  return `${day} ${MONTHS[month]}`;
 }
 
-/** Which season does the northern hemisphere have at perihelion? */
-export function seasonAtPerihelion(varpi) {
+/** Which season does the northern hemisphere have at perihelion? Returns a key. */
+export function seasonKeyAtPerihelion(varpi) {
   const v = wrap360(varpi);
-  if (v >= 45 && v < 135) return 'northern summer';
-  if (v >= 135 && v < 225) return 'northern autumn';
-  if (v >= 225 && v < 315) return 'northern winter';
-  return 'northern spring';
+  if (v >= 45 && v < 135) return 'summer';
+  if (v >= 135 && v < 225) return 'autumn';
+  if (v >= 225 && v < 315) return 'winter';
+  return 'spring';
+}
+export function seasonAtPerihelion(varpi) {
+  return 'northern ' + seasonKeyAtPerihelion(varpi);
 }
 
 /** Precompute a time series for the chart. t in kyr. */
