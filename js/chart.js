@@ -1,7 +1,11 @@
 /**
  * Small-multiple time-series strip drawn on a 2D canvas: one panel per
- * quantity, a shared time axis, a scrub marker, pointer scrubbing.
+ * quantity, a shared time axis, a scrub marker, pointer scrubbing. Along
+ * the top run the named ice ages and the marine isotope stages, and the
+ * glacial stages are shaded faintly through every panel.
  */
+import { MIS, STAGES } from './stages.js';
+
 const PANELS = [
   { key: 'e', title: 'Eccentricity', color: '#f3b64a', min: 0, max: 0.06, fmt: (v) => v.toFixed(3) },
   { key: 'eps', title: 'Obliquity (tilt)', color: '#5aa8ff', min: 22, max: 24.6, fmt: (v) => v.toFixed(2) + '°' },
@@ -11,8 +15,12 @@ const PANELS = [
   { key: 'dT', title: 'Surface temperature vs today (Stefan–Boltzmann, Planck only)', color: '#ffd98a', min: -1.6, max: 0.8, fmt: (v) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2) + ' °C', zero: true },
 ];
 
-// approximate interglacial peaks in the marine isotope record, kyr before present
-const INTERGLACIALS = [0, -125, -240, -330, -410, -500, -600, -700, -785];
+// colours for the stage bands
+const WARM = '#f3b64a';   // interglacial
+const COLD = '#8fc6ff';   // glacial
+const MIXED = '#9aa3c2';  // a complex of both
+const STAGE_H = 22;       // named-stage row
+const MIS_H = 14;         // marine isotope stage row
 
 export class TimeChart {
   constructor(canvas, series, { onScrub } = {}) {
@@ -23,7 +31,7 @@ export class TimeChart {
     this.onScrub = onScrub;
     this.tMin = series[0].t;
     this.tMax = series[series.length - 1].t;
-    this.pad = { left: 44, right: 14, top: 26, bottom: 24 };
+    this.pad = { left: 44, right: 14, top: 8 + STAGE_H + 4 + MIS_H + 12, bottom: 24 };
     this.styles = getComputedStyle(document.documentElement);
     this._bind();
     this.resize();
@@ -88,21 +96,8 @@ export class TimeChart {
     const plotH = (h - this.pad.top - this.pad.bottom - gap * (n - 1)) / n;
     const x0 = this.pad.left, x1 = w - this.pad.right;
 
-    // interglacial ticks along the top
-    ctx.font = `10px ${sans}`;
-    ctx.fillStyle = muted;
-    ctx.textAlign = 'left';
-    ctx.fillText('≈ interglacial peaks', x0, 10);
-    for (const t of INTERGLACIALS) {
-      const x = this.x(t);
-      ctx.fillStyle = muted;
-      ctx.beginPath();
-      ctx.moveTo(x, this.pad.top - 8);
-      ctx.lineTo(x - 3.5, this.pad.top - 2);
-      ctx.lineTo(x + 3.5, this.pad.top - 2);
-      ctx.closePath();
-      ctx.fill();
-    }
+    const yBottom = h - this.pad.bottom;
+    this._drawStages(ctx, x0, x1, yBottom, { ink, muted, grid, font, sans });
 
     PANELS.forEach((p, i) => {
       const y0 = this.pad.top + i * (plotH + gap), y1 = y0 + plotH;
@@ -200,6 +195,87 @@ export class TimeChart {
     }
     ctx.textAlign = 'right';
     ctx.fillText('kyr', x1, h - 8 - 12);
+  }
+
+  /**
+   * Two rows along the top: the North European stage names and the marine
+   * isotope stages, coloured warm/cold, plus faint glacial shading down
+   * through the panels so the sunlight curve can be read against them.
+   */
+  _drawStages(ctx, x0, x1, yBottom, { ink, muted, grid, font, sans }) {
+    const yS = 8, yM = yS + STAGE_H + 4;
+    const clampX = (t) => Math.max(x0, Math.min(x1, this.x(t)));
+    const tint = { warm: WARM, cold: COLD, mixed: MIXED };
+
+    // glacial shading through the panels
+    for (const m of MIS) {
+      if (m.warm) continue;
+      const a = clampX(m.from), b = clampX(m.to);
+      if (b <= a) continue;
+      ctx.fillStyle = COLD;
+      ctx.globalAlpha = 0.07;
+      ctx.fillRect(a, yM + MIS_H, b - a, yBottom - (yM + MIS_H));
+    }
+    ctx.globalAlpha = 1;
+
+    // a label that fits the band, or nothing
+    const fit = (labels, width) => {
+      for (const l of labels) if (ctx.measureText(l).width + 6 <= width) return l;
+      return null;
+    };
+
+    // named stages
+    ctx.font = `600 11px ${sans}`;
+    for (const st of STAGES) {
+      const a = clampX(st.from), b = clampX(st.to);
+      if (b <= a) continue;
+      ctx.fillStyle = tint[st.kind];
+      ctx.globalAlpha = st.kind === 'mixed' ? 0.18 : 0.28;
+      ctx.fillRect(a, yS, b - a, STAGE_H);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = grid;
+      ctx.strokeRect(a + 0.5, yS + 0.5, b - a - 1, STAGE_H - 1);
+      const label = fit([st.name, st.short], b - a);
+      if (label) {
+        ctx.fillStyle = ink;
+        ctx.textAlign = 'center';
+        ctx.fillText(label, (a + b) / 2, yS + 15);
+      }
+    }
+    // the future has no name yet
+    const fx = clampX(0);
+    if (x1 - fx > 30) {
+      ctx.fillStyle = muted;
+      ctx.font = `11px ${sans}`;
+      ctx.textAlign = 'center';
+      ctx.fillText(fit(['future', '→'], x1 - fx) || '', (fx + x1) / 2, yS + 15);
+    }
+
+    // marine isotope stages
+    ctx.font = `10px ${font}`;
+    for (const m of MIS) {
+      const a = clampX(m.from), b = clampX(m.to);
+      if (b <= a) continue;
+      ctx.fillStyle = m.warm ? WARM : COLD;
+      ctx.globalAlpha = m.warm ? 0.45 : 0.3;
+      ctx.fillRect(a, yM, b - a, MIS_H);
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = grid;
+      ctx.strokeRect(a + 0.5, yM + 0.5, b - a - 1, MIS_H - 1);
+      const label = fit([String(m.n)], b - a);
+      if (label) {
+        ctx.fillStyle = ink;
+        ctx.textAlign = 'center';
+        ctx.fillText(label, (a + b) / 2, yM + 10.5);
+      }
+    }
+
+    // row captions in the left margin
+    ctx.fillStyle = muted;
+    ctx.font = `9px ${sans}`;
+    ctx.textAlign = 'right';
+    ctx.fillText('stage', x0 - 6, yS + 14);
+    ctx.fillText('MIS', x0 - 6, yM + 10.5);
   }
 
   valueAt(key) {

@@ -1,4 +1,5 @@
 import { orbitalElements, PRESENT, climate, energyBalance, KELVIN, dailyInsolation, distanceAU, trueAnomalyFromMean, meanAnomalyFromTrue, perihelionDate, seasonAtPerihelion, dayOfYearToDate, timeSeries } from './orbital.js';
+import { STAGES, stageAt, misAt } from './stages.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = {
@@ -209,6 +210,14 @@ const time = {
     $('time-teff').textContent = fmt.celsius(c.tEffective);
     $('time-dt').textContent = fmt.signed(c.dTSurface, 2);
     time.albedo = c.albedo;
+    const st = stageAt(t), m = misAt(t);
+    if (st) {
+      $('time-stage').textContent = st.name;
+      $('time-stage-note').textContent = `${st.kind === 'warm' ? 'interglacial' : st.kind === 'cold' ? 'glacial' : 'glacials and interglacials'} · MIS ${m ? m.n : st.mis}${m ? (m.warm ? ' (warm)' : ' (cold)') : ''}`;
+    } else {
+      $('time-stage').textContent = 'Future';
+      $('time-stage-note').textContent = 'no name yet · the orbit stays round for another ~50 kyr';
+    }
     document.querySelectorAll('.chip[data-t]').forEach((b) => b.classList.toggle('is-active', Math.abs(parseFloat(b.dataset.t) - t) < 0.3));
     if (time.chart) time.chart.setTime(t);
     if (scenes) {
@@ -231,6 +240,19 @@ const timePlayer = player($('time-play'), {
     if (t >= 100) { timePlayer.started = false; return false; }
   },
 });
+
+// table of the named stages and their regional equivalents
+$('stages-body').innerHTML = STAGES.map((st) => `
+  <tr class="is-${st.kind}">
+    <th scope="row">${st.name}</th>
+    <td>${st.kind === 'warm' ? 'interglacial' : st.kind === 'cold' ? 'glacial' : 'both'}</td>
+    <td class="mono">${st.mis}</td>
+    <td class="mono">${Math.abs(st.to) < 0.25 ? 'now' : Math.abs(st.to)} – ${Math.min(800, Math.abs(st.from))}${Math.abs(st.from) > 800 ? '+' : ''}</td>
+    <td>${st.alps}</td>
+    <td>${st.britain}</td>
+    <td>${st.america}</td>
+    <td class="note">${st.note}</td>
+  </tr>`).join('');
 
 import('./chart.js').then(({ TimeChart }) => {
   time.chart = new TimeChart($('chart'), SERIES, { onScrub: (t) => { timePlayer.stop(); time.update(Math.round(t * 2) / 2); } });

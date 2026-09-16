@@ -186,14 +186,17 @@
               <button class="btn btn-ghost" id="time-now" type="button">Today</button>
             </div>
             <div class="chips" role="group" aria-label="Moments in time">
-              <button class="chip" type="button" data-t="-21">Ice-age peak −21 kyr</button>
+              <button class="chip" type="button" data-t="-21">Weichselian peak −21 kyr</button>
               <button class="chip" type="button" data-t="-11.7">Holocene begins −11.7 kyr</button>
-              <button class="chip" type="button" data-t="-125">Last warm period −125 kyr</button>
-              <button class="chip" type="button" data-t="-405">Long interglacial −405 kyr</button>
+              <button class="chip" type="button" data-t="-125">Eemian −125 kyr</button>
+              <button class="chip" type="button" data-t="-155">Saalian peak −155 kyr</button>
+              <button class="chip" type="button" data-t="-405">Holsteinian −405 kyr</button>
+              <button class="chip" type="button" data-t="-450">Elsterian −450 kyr</button>
               <button class="chip" type="button" data-t="50">Next ~50 kyr</button>
             </div>
           </div>
           <dl class="readouts">
+            <div class="wide"><dt>Ice-age stage</dt><dd><span id="time-stage">Holocene</span><small id="time-stage-note">interglacial · MIS 1 (warm)</small></dd></div>
             <div><dt>Eccentricity</dt><dd><span id="time-e">0.017</span></dd></div>
             <div><dt>Axial tilt</dt><dd><span id="time-eps">23.44</span><small>°</small></dd></div>
             <div><dt>Precession index</dt><dd><span id="time-prec">−0.016</span></dd></div>
@@ -207,8 +210,20 @@
         </div>
       </div>
       <div class="chart-wrap">
-        <canvas id="chart" tabindex="0" aria-label="Time series of eccentricity, obliquity, precession index, 65°N midsummer sunlight, modelled albedo and the resulting Stefan–Boltzmann surface temperature change from 800,000 years ago to 100,000 years ahead. Drag to scrub time; use arrow keys to step."></canvas>
-        <p class="hint">Triangles mark approximate warm interglacial peaks in the marine isotope record. Notice how the warm periods line up with strong midsummer sunlight, and how quiet the sunlight curve becomes when the orbit is round (eccentricity low, around −400 kyr and today). The bottom panel is the temperature the Stefan–Boltzmann balance assigns to the modelled albedo, Planck response only; see <a href="#energy">below</a>.</p>
+        <canvas id="chart" tabindex="0" aria-label="Time series of eccentricity, obliquity, precession index, 65°N midsummer sunlight, modelled albedo and the resulting Stefan–Boltzmann surface temperature change from 800,000 years ago to 100,000 years ahead. Along the top, the named ice ages of northern Europe and the marine isotope stages, warm in gold and cold in blue. Drag to scrub time; use arrow keys to step."></canvas>
+        <p class="hint">The two bands along the top are the ice ages. The upper row carries the North European names (Weichselian, Saalian, Elsterian for the glacials; Holocene, Eemian, Holsteinian for the interglacials; the Cromerian complex is several of each), the lower row the numbered marine isotope stages (MIS) read from deep-sea sediment, odd numbers warm in gold, even numbers cold in blue, with boundaries from the LR04 stack. The cold stages are shaded down through the panels. Notice how the warm stages line up with strong midsummer sunlight, and how quiet the sunlight curve becomes when the orbit is round (eccentricity low, around −400 kyr and today). The bottom panel is the temperature the Stefan–Boltzmann balance assigns to the modelled albedo, Planck response only; see <a href="#energy">below</a>.</p>
+        <div class="stages-wrap">
+          <div class="table-scroll">
+          <table class="stages">
+            <caption>The named ice ages of the last 800,000 years and what they are called elsewhere</caption>
+            <thead>
+              <tr><th scope="col">Northern Europe</th><th scope="col">Type</th><th scope="col">MIS</th><th scope="col">kyr ago</th><th scope="col">Alps</th><th scope="col">Britain</th><th scope="col">North America</th><th scope="col">Notes</th></tr>
+            </thead>
+            <tbody id="stages-body"></tbody>
+          </table>
+          </div>
+          <p class="hint">Stage names come from the type localities where the deposits were first described: the rivers Weichsel (Vistula), Saale and Elster, the towns Eem and Holstein, and Cromer on the Norfolk coast. Boundary ages follow Lisiecki &amp; Raymo (2005); the land-based stages do not always coincide exactly with the marine ones, and the Saalian and Cromerian are complexes that each contain more than one cold and warm spell.</p>
+        </div>
       </div>
     </section>
 
@@ -270,7 +285,7 @@
         <li><b>Energy balance and temperature.</b> Global annual-mean sunlight at the top of the atmosphere is <span class="mono">S/(4√(1 − e²))</span>, about 340 W/m². The Stefan–Boltzmann law, radiated power <span class="mono">σT⁴</span> with <span class="mono">σ = 5.67 × 10⁻⁸ W m⁻² K⁻⁴</span>, fixes the radiating temperature at <span class="mono">T<sub>e</sub> = [S(1 − α)/4σ]<sup>¼</sup></span> ≈ 255 K, or about −18 °C. The surface temperature uses a grey atmosphere, <span class="mono">(S/4)(1 − α) = εσT<sub>s</sub>⁴</span>, with the effective emissivity <span class="mono">ε ≈ 0.62</span> chosen so that today's albedo gives 288.15 K, that is 15.0 °C. The law needs absolute temperature, so the arithmetic is done in kelvin; the page displays degrees Celsius, and a difference is the same number in either unit. Differentiating gives the Planck response <span class="mono">dT<sub>s</sub>/dF = T<sub>s</sub>/4F</span> ≈ 0.30 °C per W/m²: a rise in albedo of 0.01 removes about 3.4 W/m² and cools the surface by about 1 °C before any feedback. Water vapour, clouds and lapse rate roughly double or triple that in the real climate, and the ice ages' 5–6 °C cooling needed far larger ice sheets and lower CO₂ than this toy has.</li>
         <li><b>Not a climate model.</b> There is no ocean, no carbon cycle, no ice dynamics and no lag. Milankovitch forcing is the pacemaker; feedbacks turn its faint beat into ice ages.</li>
       </ul>
-      <p class="sources">Further reading: Hays, Imbrie &amp; Shackleton, <i>Variations in the Earth's Orbit: Pacemaker of the Ice Ages</i>, Science (1976) · Laskar et al., <i>A long-term numerical solution for the insolation quantities of the Earth</i>, A&amp;A (2004) · M. Milanković, <i>Kanon der Erdbestrahlung</i> (1941).</p>
+      <p class="sources">Further reading: Lisiecki &amp; Raymo, <i>A Pliocene–Pleistocene stack of 57 globally distributed benthic δ¹⁸O records</i>, Paleoceanography (2005) · Hays, Imbrie &amp; Shackleton, <i>Variations in the Earth's Orbit: Pacemaker of the Ice Ages</i>, Science (1976) · Laskar et al., <i>A long-term numerical solution for the insolation quantities of the Earth</i>, A&amp;A (2004) · M. Milanković, <i>Kanon der Erdbestrahlung</i> (1941).</p>
     </section>
   </main>
 
