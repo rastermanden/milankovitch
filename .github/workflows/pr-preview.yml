@@ -2,6 +2,8 @@
 #   https://<owner>.github.io/<repo>/pr-preview/pr-<number>/
 # The preview is (re)deployed on every push to the PR, its link is posted as
 # a PR comment, and it is removed when the PR is closed or merged.
+# The root .nojekyll published by deploy.yml covers the previews too; adding
+# one per preview would leave an empty stub behind after cleanup.
 name: PR preview
 
 on:
@@ -27,7 +29,6 @@ jobs:
         run: |
           mkdir -p _site
           tar --exclude=./.git --exclude=./.github --exclude=./_site --exclude=./README.md -cf - . | tar -xf - -C _site
-          touch _site/.nojekyll
 
       - name: Deploy or remove the preview
         uses: rossjrw/pr-preview-action@v1

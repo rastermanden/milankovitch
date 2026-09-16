@@ -48,8 +48,8 @@ Pages → Deploy from a branch → `gh-pages` / `/ (root)`):
   not get a preview, because their workflow token cannot push to the branch.
 
 Both workflows copy the site into a `_site` folder first, leaving out
-`README.md` and `.github`, and add `.nojekyll` so Pages serves the files
-as they are.
+`README.md` and `.github`. The deploy workflow also adds a root `.nojekyll`
+so Pages serves the files as they are, previews included.
 
 ## How the numbers are made
 
