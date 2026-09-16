@@ -347,14 +347,59 @@ a { color: var(--ice); }
 .readouts > div { background: var(--surface); padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
 .readouts > div.wide { grid-column: 1 / -1; }
 .readouts dt { font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-3); }
+.readouts dt sub { text-transform: none; font-size: 0.85em; }
 .readouts dd { margin: 0; font-family: var(--font-mono); font-size: 1.15rem; color: var(--ink); font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 5px; flex-wrap: wrap; }
 .readouts dd small { font-family: var(--font-body); font-size: 0.72rem; color: var(--ink-3); }
+
+/* ---------- energy budget ---------- */
+.budget-card {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  padding: 20px;
+  background: rgba(15, 21, 41, 0.75);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+.equation {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  background: var(--surface);
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+.eq-line { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; font-size: 1.05rem; }
+.eq-line .mono { font-size: 1em; }
+.eq-line sub, .eq-line sup { font-size: 0.7em; }
+.eq-op { color: var(--ink-3); }
+.eq-values { font-size: 0.95rem; color: var(--ink-2); }
+.eq-values b { color: var(--gold-2); font-weight: 500; font-variant-numeric: tabular-nums; }
+.budget { display: grid; gap: 10px; }
+.budget-row {
+  display: grid;
+  grid-template-columns: minmax(120px, 0.55fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+.budget-label { font-size: 0.85rem; font-weight: 600; display: grid; line-height: 1.25; }
+.budget-label small { font-family: var(--font-mono); font-weight: 400; font-size: 0.72rem; color: var(--ink-3); }
+.budget-bar { display: block; height: 14px; border-radius: 7px; background: var(--surface-2); overflow: hidden; }
+.budget-bar i { display: block; height: 100%; width: var(--w, 0%); border-radius: 7px; transition: width 120ms ease-out; }
+.budget-row.in .budget-bar i { background: var(--gold); }
+.budget-row.reflected .budget-bar i { background: var(--ice); }
+.budget-row.absorbed .budget-bar i { background: var(--ember); }
+.budget-row.out .budget-bar i { background: var(--rose); }
+.budget-row b { font-family: var(--font-mono); font-weight: 500; font-size: 0.95rem; font-variant-numeric: tabular-nums; display: flex; align-items: baseline; gap: 4px; justify-self: end; }
+.budget-row b small { font-family: var(--font-body); font-size: 0.7rem; color: var(--ink-3); }
+@media (prefers-reduced-motion: reduce) { .budget-bar i { transition: none; } }
 
 /* ---------- chart ---------- */
 .chart-wrap { margin-top: clamp(20px, 3vw, 32px); display: grid; gap: 10px; }
 #chart {
   width: 100%;
-  height: 520px;
+  height: 600px;
   display: block;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -379,7 +424,7 @@ a { color: var(--ice); }
   .stage-hero { order: -1; aspect-ratio: 4 / 3; max-height: 46vh; }
   .lab { grid-template-columns: 1fr; }
   .stage { aspect-ratio: 4 / 3.4; }
-  #chart { height: 460px; }
+  #chart { height: 540px; }
 }
 @media (max-width: 560px) {
   .topbar { padding-block: 10px; }
@@ -390,5 +435,8 @@ a { color: var(--ice); }
   .stage { aspect-ratio: 4 / 4.2; }
   .panel { padding: 16px; }
   .readouts dd { font-size: 1.02rem; }
-  #chart { height: 440px; }
+  #chart { height: 520px; }
+  .budget-row { grid-template-columns: 1fr auto; gap: 6px 12px; }
+  .budget-row .budget-bar { grid-column: 1 / -1; grid-row: 2; }
+  .budget-row b { grid-row: 1; grid-column: 2; }
 }
