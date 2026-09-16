@@ -8,6 +8,7 @@ const PANELS = [
   { key: 'prec', title: 'Precession index e·sin ϖ', color: '#ef86b0', min: -0.06, max: 0.06, fmt: (v) => (v >= 0 ? '+' : '') + v.toFixed(3), zero: true },
   { key: 'q65', title: '65°N midsummer sunlight', color: '#ff8d5c', min: 420, max: 580, fmt: (v) => v.toFixed(0) + ' W/m²' },
   { key: 'albedo', title: 'Effective albedo (model)', color: '#b9e6ff', min: 0.27, max: 0.31, fmt: (v) => v.toFixed(3), fill: true },
+  { key: 'dT', title: 'Surface temperature vs today (Stefan–Boltzmann, Planck only)', color: '#ffd98a', min: -1.6, max: 0.8, fmt: (v) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2) + ' °C', zero: true },
 ];
 
 // approximate interglacial peaks in the marine isotope record, kyr before present
@@ -153,8 +154,8 @@ export class TimeChart {
       ctx.fillStyle = muted;
       ctx.font = `10px ${font}`;
       ctx.textAlign = 'right';
-      ctx.fillText(p.fmt(p.max).replace(' W/m²', ''), x0 - 6, y0 + 9);
-      ctx.fillText(p.fmt(p.min).replace(' W/m²', ''), x0 - 6, y1);
+      ctx.fillText(p.fmt(p.max).replace(' W/m²', '').replace(' °C', ''), x0 - 6, y0 + 9);
+      ctx.fillText(p.fmt(p.min).replace(' W/m²', '').replace(' °C', ''), x0 - 6, y1);
 
       // title
       ctx.fillStyle = ink;
