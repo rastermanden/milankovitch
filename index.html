@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Milankovitch Cycles</title>
+<meta name="description" content="An interactive 3D explainer of the Milankovitch cycles: how Earth's stretching orbit, nodding tilt and wobbling axis pace the ice ages, with live sliders for polar ice and albedo.">
+<meta name="theme-color" content="#0a0e1c">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..600&family=Public+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<div class="page">
+  <header class="topbar">
+    <a class="brand" href="#top">Milankovitch<span>cycles</span></a>
+    <nav aria-label="Sections">
+      <a href="#eccentricity">Orbit</a>
+      <a href="#obliquity">Tilt</a>
+      <a href="#precession">Wobble</a>
+      <a href="#timeline">800 kyr</a>
+      <a href="#model">Model</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="top">
+      <div class="hero-text">
+        <p class="eyebrow">Orbital forcing, made visible</p>
+        <h1>Milankovitch cycles</h1>
+        <p class="lede">Earth's orbit stretches, its axis nods and wobbles, over tens of thousands of years. Those slow rhythms change how much summer sunlight reaches the far north, and that sets the pace of the ice ages.</p>
+        <p class="lede-sub">Drag the planet. Tilt the Earth. Scrub through 800,000 years.</p>
+        <ul class="rhythms">
+          <li><a href="#eccentricity"><b>Eccentricity</b><span>orbit shape</span><em>~100,000 yr</em></a></li>
+          <li><a href="#obliquity"><b>Obliquity</b><span>axial tilt</span><em>~41,000 yr</em></a></li>
+          <li><a href="#precession"><b>Precession</b><span>axis wobble</span><em>~23,000 yr</em></a></li>
+        </ul>
+      </div>
+      <div class="stage stage-hero" id="stage-hero" role="img" aria-label="A slowly turning 3D Earth lit by the Sun, with its polar ice caps"></div>
+    </section>
+
+    <section class="prose" id="why">
+      <h2>The hinge is northern summer sunlight</h2>
+      <p>Milutin Milanković, working in Belgrade between the 1920s and 1940s, computed by hand how these orbital cycles alter the sunlight arriving at every latitude and season. His central insight was about <em>where</em> it matters. Ice sheets grow on the great northern continents, so the decisive quantity is midsummer sunlight around 65°N. Cool summers let the previous winter's snow survive; ice spreads and reflects more sunlight; the planet cools further. Hot summers melt the ice back.</p>
+      <p>In 1976 Hays, Imbrie and Shackleton found exactly these periods in deep-sea sediment cores, and the cycles went from hypothesis to “pacemaker of the ice ages”. This page computes the three cycles from the astronomical series of Berger (1978), evaluates the resulting sunlight, and feeds it into a deliberately simple ice–albedo model. Every number on the page is live.</p>
+    </section>
+
+    <!-- ================= ECCENTRICITY ================= -->
+    <section class="cycle" id="eccentricity">
+      <header class="cycle-head">
+        <p class="eyebrow">Eccentricity · ~100,000 and ~400,000 years</p>
+        <h2>How stretched is the orbit?</h2>
+        <p class="cycle-lede">Earth's orbit is an ellipse with the Sun at one focus, not at the centre. Today it is nearly circular: Earth comes about 3% closer to the Sun in early January than in early July, which means roughly 7% more sunlight at perihelion. Pulled by Jupiter and Saturn, the ellipse stretches to <span class="mono">e ≈ 0.058</span> and relaxes again. Eccentricity barely changes the sunlight over a whole year. Its real job is to set the <em>volume</em> of the precession cycle below: a rounder orbit mutes the contrast between seasons, a stretched one amplifies it.</p>
+      </header>
+      <div class="lab">
+        <div class="stage" id="stage-orbit" aria-label="3D view of Earth orbiting the Sun on an ellipse. Drag to rotate."></div>
+        <div class="panel">
+          <div class="control">
+            <div class="control-row"><label for="ecc-e">Eccentricity</label><output id="ecc-e-out" for="ecc-e">0.017</output></div>
+            <div class="range" style="--b0: 0%; --b1: 23.2%">
+              <input type="range" id="ecc-e" min="0" max="0.25" step="0.001" value="0.017">
+            </div>
+            <p class="hint"><span class="swatch band"></span>Earth's range 0.000–0.058. Beyond that the orbit is exaggerated to show the geometry.</p>
+          </div>
+          <div class="control">
+            <div class="control-row"><label for="ecc-day">Days after perihelion</label><output id="ecc-day-out" for="ecc-day">0</output></div>
+            <div class="range"><input type="range" id="ecc-day" min="0" max="365" step="1" value="0"></div>
+            <div class="control-actions">
+              <button class="btn" id="ecc-play" type="button" aria-pressed="false">▶ Orbit a year</button>
+              <span class="hint">Watch Earth speed up near the Sun and slow down far from it.</span>
+            </div>
+          </div>
+          <dl class="readouts">
+            <div><dt>Calendar date</dt><dd><span id="ecc-date">3 Jan</span></dd></div>
+            <div><dt>Distance to the Sun</dt><dd><span id="ecc-dist">0.983</span><small>AU</small></dd></div>
+            <div><dt>Sunlight vs yearly mean</dt><dd><span id="ecc-rel">+3.4</span><small>%</small></dd></div>
+            <div><dt>Perihelion → aphelion</dt><dd><span id="ecc-peri">0.983</span><small>→</small><span id="ecc-aph">1.017</span><small>AU</small></dd></div>
+            <div class="wide"><dt>Sunlight at perihelion vs aphelion</dt><dd><span id="ecc-contrast">+6.9</span><small>% stronger</small></dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= OBLIQUITY ================= -->
+    <section class="cycle" id="obliquity">
+      <header class="cycle-head">
+        <p class="eyebrow">Obliquity · ~41,000 years</p>
+        <h2>How far does the axis lean?</h2>
+        <p class="cycle-lede">Earth's axis is tilted 23.4° from the perpendicular to its orbit. That tilt is why there are seasons, and it nods between 22.1° and 24.5° every 41,000 years or so. More tilt means stronger seasons: the poles get more midsummer sun and the Arctic Circle creeps poleward. Less tilt means milder polar summers, snow that survives, and ice caps that creep toward the equator. Ice reflects far more sunlight than ocean or forest, so growing ice raises the planet's albedo, less energy is absorbed, and the cooling feeds on itself. Tilt the Earth and watch the ice and the albedo respond.</p>
+      </header>
+      <div class="lab">
+        <div class="stage" id="stage-tilt" aria-label="3D Earth with its rotation axis, latitude circles and polar ice caps, lit from the right. Drag to rotate."></div>
+        <div class="panel">
+          <div class="control">
+            <div class="control-row"><label for="tilt-eps">Axial tilt</label><output id="tilt-eps-out" for="tilt-eps">23.4°</output></div>
+            <div class="range" style="--b0: 34.6%; --b1: 41.4%">
+              <input type="range" id="tilt-eps" min="10" max="45" step="0.1" value="23.4">
+            </div>
+            <div class="chips" role="group" aria-label="Tilt presets">
+              <button class="chip" type="button" data-eps="22.1">22.1° minimum</button>
+              <button class="chip is-active" type="button" data-eps="23.4">23.4° today</button>
+              <button class="chip" type="button" data-eps="24.5">24.5° maximum</button>
+            </div>
+            <p class="hint"><span class="swatch band"></span>Earth's real range is 22.1°–24.5°. The slider goes further so you can see the extremes.</p>
+          </div>
+          <div class="control">
+            <div class="control-row"><label for="tilt-season">Season</label><output id="tilt-season-out" for="tilt-season">June solstice</output></div>
+            <div class="range"><input type="range" id="tilt-season" min="0" max="360" step="1" value="90"></div>
+            <p class="hint">Sunlight always arrives from the right. Moving through the year swings the tilted axis toward and away from it.</p>
+          </div>
+          <dl class="readouts">
+            <div><dt>Arctic Circle</dt><dd><span id="tilt-arctic">66.6</span><small>°N</small></dd></div>
+            <div><dt>65°N midsummer sunlight</dt><dd><span id="tilt-q65">478</span><small>W/m²</small></dd></div>
+            <div><dt>Ice edge, north</dt><dd><span id="tilt-iceN">70</span><small>°N</small></dd></div>
+            <div><dt>Ice edge, south</dt><dd><span id="tilt-iceS">66</span><small>°S</small></dd></div>
+            <div><dt>Ice cover</dt><dd><span id="tilt-icefrac">7.3</span><small>% of surface</small></dd></div>
+            <div><dt>Effective albedo</dt><dd><span id="tilt-albedo">0.287</span></dd></div>
+            <div class="wide"><dt>Absorbed sunlight vs today</dt><dd><span id="tilt-absorbed">+0.0</span><small>W/m² global mean</small></dd></div>
+          </dl>
+          <p class="hint model-note">Ice edges and albedo come from this page's simple model, described <a href="#model">below</a>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= PRECESSION ================= -->
+    <section class="cycle" id="precession">
+      <header class="cycle-head">
+        <p class="eyebrow">Precession · ~19,000–23,000 years</p>
+        <h2>Which season is closest to the Sun?</h2>
+        <p class="cycle-lede">Like a spinning top, Earth's axis slowly traces a cone, once every 26,000 years. Combined with the slow turning of the ellipse itself, the climatic cycle repeats every 19,000–23,000 years. Precession does not change the tilt, only where it points, and therefore which season falls at perihelion. Today Earth is closest to the Sun in early January: northern winters are a little milder, northern summers a little cooler. Eleven thousand years ago it was the reverse, northern summer at perihelion, midsummer sunlight up to 8% stronger, and the last great ice sheets collapsed.</p>
+      </header>
+      <div class="lab">
+        <div class="stage" id="stage-wobble" aria-label="3D Earth at perihelion with its axis sweeping around a cone. Drag to rotate."></div>
+        <div class="panel">
+          <div class="control">
+            <div class="control-row"><label for="prec-phase">Longitude of perihelion ϖ</label><output id="prec-phase-out" for="prec-phase">283°</output></div>
+            <div class="range"><input type="range" id="prec-phase" min="0" max="360" step="1" value="283"></div>
+            <div class="control-actions">
+              <button class="btn" id="prec-play" type="button" aria-pressed="false">▶ Sweep one cycle</button>
+              <span class="hint">Roughly 23,000 years in a few seconds.</span>
+            </div>
+          </div>
+          <dl class="readouts">
+            <div><dt>Earth nearest the Sun on</dt><dd><span id="prec-date">4 Jan</span></dd></div>
+            <div><dt>Season at perihelion</dt><dd><span id="prec-season">northern winter</span></dd></div>
+            <div><dt>Distance at northern midsummer</dt><dd><span id="prec-dist">1.016</span><small>AU</small></dd></div>
+            <div><dt>65°N midsummer sunlight</dt><dd><span id="prec-q65">478</span><small>W/m²</small></dd></div>
+            <div><dt>Precession index e·sin ϖ</dt><dd><span id="prec-index">−0.016</span></dd></div>
+            <div><dt>Ice edge, north (model)</dt><dd><span id="prec-iceN">70</span><small>°N</small></dd></div>
+          </dl>
+          <p class="hint model-note">Eccentricity is held at today's 0.017. With <span class="mono">e = 0.05</span> the same sweep would move the 65°N midsummer sunlight by three times as much.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= TIMELINE ================= -->
+    <section class="cycle timeline" id="timeline">
+      <header class="cycle-head">
+        <p class="eyebrow">All three together</p>
+        <h2>800,000 years on one slider</h2>
+        <p class="cycle-lede">Eccentricity sets the beat's volume, obliquity and precession set its rhythm. Here all three are computed together from the Berger (1978) series. The Earth is shown at northern midsummer with the ice caps the model gives for that moment, and the Sun's glow scales with how close Earth is to it then. Drag the time slider, or scrub directly on the chart.</p>
+      </header>
+      <div class="lab lab-timeline">
+        <div class="stage" id="stage-timeline" aria-label="3D Earth at northern midsummer with modelled ice caps. Drag to rotate."></div>
+        <div class="panel">
+          <div class="control">
+            <div class="control-row"><label for="time-t">Time</label><output id="time-t-out" for="time-t">now</output></div>
+            <div class="range"><input type="range" id="time-t" min="-800" max="100" step="0.5" value="0"></div>
+            <div class="control-actions">
+              <button class="btn" id="time-play" type="button" aria-pressed="false">▶ Play from −800 kyr</button>
+              <button class="btn btn-ghost" id="time-now" type="button">Today</button>
+            </div>
+            <div class="chips" role="group" aria-label="Moments in time">
+              <button class="chip" type="button" data-t="-21">Ice-age peak −21 kyr</button>
+              <button class="chip" type="button" data-t="-11.7">Holocene begins −11.7 kyr</button>
+              <button class="chip" type="button" data-t="-125">Last warm period −125 kyr</button>
+              <button class="chip" type="button" data-t="-405">Long interglacial −405 kyr</button>
+              <button class="chip" type="button" data-t="50">Next ~50 kyr</button>
+            </div>
+          </div>
+          <dl class="readouts">
+            <div><dt>Eccentricity</dt><dd><span id="time-e">0.017</span></dd></div>
+            <div><dt>Axial tilt</dt><dd><span id="time-eps">23.44</span><small>°</small></dd></div>
+            <div><dt>Precession index</dt><dd><span id="time-prec">−0.016</span></dd></div>
+            <div><dt>65°N midsummer sunlight</dt><dd><span id="time-q65">478</span><small>W/m²</small></dd></div>
+            <div><dt>Ice edge, north</dt><dd><span id="time-iceN">70</span><small>°N</small></dd></div>
+            <div><dt>Effective albedo</dt><dd><span id="time-albedo">0.287</span></dd></div>
+            <div class="wide"><dt>Absorbed sunlight vs today</dt><dd><span id="time-absorbed">+0.0</span><small>W/m² global mean</small></dd></div>
+          </dl>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <canvas id="chart" tabindex="0" aria-label="Time series of eccentricity, obliquity, precession index, 65°N midsummer sunlight and modelled albedo from 800,000 years ago to 100,000 years ahead. Drag to scrub time; use arrow keys to step."></canvas>
+        <p class="hint">Triangles mark approximate warm interglacial peaks in the marine isotope record. Notice how the warm periods line up with strong midsummer sunlight, and how quiet the sunlight curve becomes when the orbit is round (eccentricity low, around −400 kyr and today).</p>
+      </div>
+    </section>
+
+    <!-- ================= MODEL ================= -->
+    <section class="prose" id="model">
+      <h2>What the numbers are, and what they are not</h2>
+      <ul class="notes">
+        <li><b>Orbital elements.</b> Eccentricity, obliquity and the longitude of perihelion are evaluated from the trigonometric series of A. Berger, <i>Long-term variations of daily insolation and Quaternary climatic changes</i>, J. Atmos. Sci. 35 (1978), truncated to the leading terms. Over the last million years the truncated series stays within a few percent of the full solution; for precise work use Laskar et al. (2004).</li>
+        <li><b>Sunlight.</b> Daily-mean insolation at the top of the atmosphere uses the standard formula with a solar constant of 1361 W/m². “65°N midsummer sunlight” is the daily mean on the June solstice, the classic Milankovitch diagnostic.</li>
+        <li><b>Ice edges.</b> A toy model: the equatorward edge of each polar ice cap moves linearly with that hemisphere's midsummer sunlight (0.34° of latitude per W/m² in the north, less in the south, which is anchored by Antarctica), starting from 70°N and 66°S today. Real ice sheets take thousands of years to respond and depend on land, ocean and CO₂; this page shows the equilibrium tendency, not the history.</li>
+        <li><b>Effective albedo.</b> Ice-covered latitudes reflect 66% of sunlight, everything else 27%. The planetary value is the average weighted by each latitude's annual sunlight, so ice near the poles counts for less than it would by area, and a larger tilt, which brightens the poles, makes polar ice matter more. “Absorbed sunlight vs today” is the resulting change in the global-mean absorbed solar power; for scale, doubling CO₂ adds about 4 W/m².</li>
+        <li><b>Not a climate model.</b> There is no ocean, no carbon cycle, no ice dynamics and no lag. Milankovitch forcing is the pacemaker; feedbacks turn its faint beat into ice ages.</li>
+      </ul>
+      <p class="sources">Further reading: Hays, Imbrie &amp; Shackleton, <i>Variations in the Earth's Orbit: Pacemaker of the Ice Ages</i>, Science (1976) · Laskar et al., <i>A long-term numerical solution for the insolation quantities of the Earth</i>, A&amp;A (2004) · M. Milanković, <i>Kanon der Erdbestrahlung</i> (1941).</p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Built with three.js. Astronomical series after Berger (1978). The Earth's map is procedurally generated.</p>
+  </footer>
+</div>
+
+<div class="webgl-fallback" id="webgl-fallback" hidden>
+  <p>This page needs WebGL and a modern browser for the 3D scenes. The explanations and numbers still work.</p>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

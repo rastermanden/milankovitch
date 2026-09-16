@@ -1,0 +1,62 @@
+# Milankovitch cycles
+
+An interactive, mobile-friendly website that explains the Milankovitch cycles
+with live 3D models: how the stretching of Earth's orbit (eccentricity), the
+nodding of its axis (obliquity) and the wobble of that axis (precession) change
+the summer sunlight at high northern latitudes, and how that drives polar ice
+and the planet's effective albedo.
+
+## What's on the page
+
+| Section | 3D stage | Controls |
+| --- | --- | --- |
+| Hero | Turning Earth with present-day ice caps | drag to rotate |
+| Eccentricity | Sun, elliptical orbit, Earth with tilted axis, season markers | eccentricity, day of year, play |
+| Obliquity | Earth with axis, tropics, polar circles and ice edges | tilt (presets 22.1° / 23.4° / 24.5°), season |
+| Precession | Earth at perihelion, axis sweeping its cone | longitude of perihelion, play |
+| 800 kyr timeline | Earth at northern midsummer with modelled ice | time slider (−800 to +100 kyr), play, scrubbable chart |
+
+Every readout is computed live from the orbital elements (see `js/orbital.js`).
+
+## Running it
+
+It is a static site with no build step. Serve the folder with any static
+server, for example:
+
+```sh
+npx http-server -p 8080 .
+```
+
+and open `http://localhost:8080`. Three.js and the fonts are loaded from
+CDNs, so the page needs internet access. It can be published as-is with
+GitHub Pages (Settings → Pages → deploy from the repository root).
+
+## How the numbers are made
+
+- **Orbital elements** follow the trigonometric series of Berger (1978,
+  *J. Atmos. Sci.* 35), truncated to the leading terms. Present-day output:
+  e = 0.0165, ε = 23.44°, perihelion on 4 January.
+- **Insolation** is the daily-mean top-of-atmosphere value with a solar
+  constant of 1361 W/m². The classic diagnostic, 65°N on the June solstice,
+  comes out at 478 W/m² today, 528 W/m² 11 kyr ago and 461 W/m² 23 kyr ago.
+- **Ice edges** use a deliberately simple equilibrium model: each polar cap's
+  edge moves linearly with that hemisphere's midsummer sunlight.
+- **Effective albedo** is the annual-sunlight-weighted average of surface
+  albedo (66% for ice, 27% otherwise), so ice near the poles counts less than
+  its area, and a larger tilt makes polar ice matter more.
+
+This is an explainer, not a climate model. There is no ocean, no carbon
+cycle, no ice dynamics and no lag.
+
+## Files
+
+```
+index.html      page structure and copy
+css/style.css   styles (single dark theme)
+js/orbital.js   Berger series, insolation, ice–albedo model
+js/earth.js     procedural Earth texture and ice-cap shader
+js/stage.js     one WebGL context rendered into several page viewports
+js/scenes.js    the five 3D stages
+js/chart.js     time-series chart
+js/main.js      wiring between sliders, model and scenes
+```
