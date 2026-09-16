@@ -1,5 +1,6 @@
 /**
- * Orbital forcing and a small ice–albedo model.
+ * Orbital forcing, a small ice–albedo model, and the Stefan–Boltzmann
+ * energy balance that turns the resulting albedo into a temperature.
  *
  * Eccentricity, obliquity and precession follow the trigonometric series of
  * Berger (1978, J. Atmos. Sci. 35, 2362–2367), truncated to the leading
@@ -195,9 +196,9 @@ const Q_NORTH_REF = dailyInsolation(65, 90, PRESENT.e, PRESENT.eps, PRESENT.varp
 const Q_SOUTH_REF = dailyInsolation(-65, 270, PRESENT.e, PRESENT.eps, PRESENT.varpi);
 
 /**
- * Full climate diagnostics for a set of orbital elements.
+ * Ice edges and planetary albedo for a set of orbital elements.
  */
-export function climate(e, eps, varpi) {
+export function iceAlbedo(e, eps, varpi) {
   const qN = dailyInsolation(65, 90, e, eps, varpi);
   const qS = dailyInsolation(-65, 270, e, eps, varpi);
   const iceN = clamp(ICE.northBase + ICE.northSens * (qN - Q_NORTH_REF), ICE.minLat, 90);
@@ -220,6 +221,8 @@ export function climate(e, eps, varpi) {
     if (Math.abs(lat) > 65) polarAnnual += annualMeanInsolation(lat, e, eps, 36);
   }
   const albedo = asum / wsum;
+  // Global, annual-mean sunlight at the top of the atmosphere. Over a
+  // circular orbit this is S/4; the mean of 1/r² over an ellipse adds 1/√(1−e²).
   const globalMean = S0 / (4 * Math.sqrt(1 - e * e));
   const iceFraction = ((1 - Math.sin(iceN * DEG)) + (1 - Math.sin(iceS * DEG))) / 2;
   return {
@@ -229,11 +232,104 @@ export function climate(e, eps, varpi) {
     iceSouth: iceS,
     iceFraction,
     albedo,
-    absorbed: globalMean * (1 - albedo),
     globalMean,
     polarAnnual: polarAnnual / Math.round((25 / dLat) * 2),
     arcticCircle: 90 - eps,
     tropic: eps,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Energy balance: from albedo to temperature.
+//
+// Averaged over the year and the whole sphere, Earth intercepts S/4 of
+// sunlight per square metre (a disc's worth of sunlight, πR²·S, spread over
+// a sphere, 4πR²). A fraction α, the planetary albedo, is reflected straight
+// back to space; the rest is absorbed and warms the planet. A warm body
+// radiates thermal infrared according to the Stefan–Boltzmann law, σT⁴, so
+// the planet settles at the temperature where what goes out equals what
+// comes in:
+//
+//     (S/4)(1 − α) = σ Tₑ⁴      →      Tₑ = [ S(1 − α) / 4σ ]^¼
+//
+// Tₑ is the "effective" or radiating temperature, about 255 K (−18 °C). The
+// surface is warmer than that because greenhouse gases absorb much of the
+// infrared the surface emits and re-radiate part of it downward. The simplest
+// way to write that is a grey atmosphere: the surface at Tₛ radiates to space
+// through an effective emissivity ε < 1,
+//
+//     (S/4)(1 − α) = ε σ Tₛ⁴
+//
+// and ε is calibrated once so that today's albedo gives today's 288.15 K
+// (15.0 °C). The law needs absolute temperature, so everything here is in
+// kelvin; the page converts to °C for display. Differentiating shows why a small albedo change matters:
+//
+//     dTₛ/dF = Tₛ / (4 F)  ≈ 288 / (4 × 243)  ≈ 0.30 K per W/m²
+//
+// where F is the absorbed power. This is the Planck response alone. Water
+// vapour, clouds and lapse-rate feedbacks roughly double or triple it in the
+// real climate, and in the real ice ages CO₂ and far larger ice sheets did
+// most of the work. The page shows the bare Stefan–Boltzmann consequence of
+// the modelled albedo, nothing more.
+// ---------------------------------------------------------------------------
+
+export const SIGMA = 5.670374419e-8; // Stefan–Boltzmann constant, W m⁻² K⁻⁴
+export const T_SURFACE_TODAY = 288.15; // K (15.0 °C), global mean surface temperature today
+export const KELVIN = 273.15; // 0 °C in kelvin
+
+/** Present-day ice–albedo state, used to calibrate the grey atmosphere. */
+const TODAY = iceAlbedo(PRESENT.e, PRESENT.eps, PRESENT.varpi);
+export const ABSORBED_TODAY = TODAY.globalMean * (1 - TODAY.albedo);
+export const ALBEDO_TODAY = TODAY.albedo;
+/** Effective emissivity of the grey atmosphere, ε = F₀ / (σ · 288.15⁴) ≈ 0.62. */
+export const EMISSIVITY = ABSORBED_TODAY / (SIGMA * T_SURFACE_TODAY ** 4);
+
+/**
+ * Stefan–Boltzmann energy balance for a planetary albedo and a global-mean
+ * incoming sunlight (defaults to today's S/4).
+ * @returns {{
+ *   incoming:number, reflected:number, absorbed:number,
+ *   tEffective:number, tSurface:number, dTSurface:number, sensitivity:number
+ * }}
+ *  incoming     global annual-mean sunlight at the top of the atmosphere, W/m²
+ *  reflected    part sent straight back to space, α × incoming
+ *  absorbed     part that warms the planet and must be re-radiated, W/m²
+ *  tEffective   radiating temperature, [absorbed / σ]^¼, K
+ *  tSurface     surface temperature under the grey atmosphere, [absorbed / εσ]^¼, K
+ *  dTSurface    tSurface minus today's 288.15 K (15.0 °C)
+ *  sensitivity  Planck response dTₛ/dF = Tₛ / (4 absorbed), K per W/m²
+ */
+export function energyBalance(albedo, incoming = TODAY.globalMean) {
+  const reflected = incoming * albedo;
+  const absorbed = incoming - reflected;
+  const tEffective = (absorbed / SIGMA) ** 0.25;
+  const tSurface = (absorbed / (EMISSIVITY * SIGMA)) ** 0.25;
+  return {
+    incoming,
+    reflected,
+    absorbed,
+    tEffective,
+    tSurface,
+    dTSurface: tSurface - T_SURFACE_TODAY,
+    sensitivity: tSurface / (4 * absorbed),
+  };
+}
+
+/**
+ * Full climate diagnostics for a set of orbital elements: ice edges,
+ * planetary albedo, and the Stefan–Boltzmann temperature that follows.
+ */
+export function climate(e, eps, varpi) {
+  const ice = iceAlbedo(e, eps, varpi);
+  const bal = energyBalance(ice.albedo, ice.globalMean);
+  return {
+    ...ice,
+    reflected: bal.reflected,
+    absorbed: bal.absorbed,
+    tEffective: bal.tEffective,
+    tSurface: bal.tSurface,
+    dTSurface: bal.dTSurface,
+    sensitivity: bal.sensitivity,
   };
 }
 
@@ -271,7 +367,7 @@ export function timeSeries(fromKyr = -800, toKyr = 100, stepKyr = 1) {
   for (let k = fromKyr; k <= toKyr + 1e-9; k += stepKyr) {
     const el = orbitalElements(k * 1000);
     const c = climate(el.e, el.eps, el.varpi);
-    out.push({ t: k, e: el.e, eps: el.eps, prec: el.precIndex, q65: c.qNorth, albedo: c.albedo, iceNorth: c.iceNorth });
+    out.push({ t: k, e: el.e, eps: el.eps, prec: el.precIndex, q65: c.qNorth, albedo: c.albedo, iceNorth: c.iceNorth, absorbed: c.absorbed, dT: c.dTSurface });
   }
   return out;
 }

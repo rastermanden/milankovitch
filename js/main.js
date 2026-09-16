@@ -1,9 +1,10 @@
-import { orbitalElements, PRESENT, climate, dailyInsolation, distanceAU, trueAnomalyFromMean, meanAnomalyFromTrue, perihelionDate, seasonAtPerihelion, dayOfYearToDate, timeSeries } from './orbital.js';
+import { orbitalElements, PRESENT, climate, energyBalance, KELVIN, dailyInsolation, distanceAU, trueAnomalyFromMean, meanAnomalyFromTrue, perihelionDate, seasonAtPerihelion, dayOfYearToDate, timeSeries } from './orbital.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = {
   signed: (v, d = 1) => (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(d),
   signedPlain: (v, d) => (v < 0 ? '−' : '+') + Math.abs(v).toFixed(d),
+  celsius: (k, d = 1) => (k - KELVIN < 0 ? '−' : '') + Math.abs(k - KELVIN).toFixed(d),
 };
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -138,6 +139,9 @@ const tilt = {
     $('tilt-icefrac').textContent = (c.iceFraction * 100).toFixed(1);
     $('tilt-albedo').textContent = c.albedo.toFixed(3);
     $('tilt-absorbed').textContent = fmt.signed(c.absorbed - NOW.absorbed, 1);
+    $('tilt-teff').textContent = fmt.celsius(c.tEffective);
+    $('tilt-dt').textContent = fmt.signed(c.dTSurface, 2);
+    tilt.albedo = c.albedo;
     document.querySelectorAll('.chip[data-eps]').forEach((b) => b.classList.toggle('is-active', Math.abs(parseFloat(b.dataset.eps) - tilt.eps) < 0.05));
     if (scenes) scenes.tilt.set({ eps: tilt.eps, lambda: tilt.lambda, iceNorth: c.iceNorth, iceSouth: c.iceSouth });
   },
@@ -202,6 +206,9 @@ const time = {
     $('time-iceN').textContent = c.iceNorth >= 89.5 ? 'none' : c.iceNorth.toFixed(0);
     $('time-albedo').textContent = c.albedo.toFixed(3);
     $('time-absorbed').textContent = fmt.signed(c.absorbed - NOW.absorbed, 1);
+    $('time-teff').textContent = fmt.celsius(c.tEffective);
+    $('time-dt').textContent = fmt.signed(c.dTSurface, 2);
+    time.albedo = c.albedo;
     document.querySelectorAll('.chip[data-t]').forEach((b) => b.classList.toggle('is-active', Math.abs(parseFloat(b.dataset.t) - t) < 0.3));
     if (time.chart) time.chart.setTime(t);
     if (scenes) {
@@ -230,6 +237,61 @@ import('./chart.js').then(({ TimeChart }) => {
   time.chart.setTime(time.t);
 });
 time.update(0);
+
+// =========================================================================
+// Energy balance lab: albedo → absorbed power → Stefan–Boltzmann temperature
+// =========================================================================
+const energy = {
+  albedo: NOW.albedo,
+  update() {
+    const a = energy.albedo;
+    const b = energyBalance(a); // today's S/4, so only albedo varies here
+    const pct = (v) => ((100 * v) / b.incoming).toFixed(1) + '%';
+    $('en-alb-out').value = a.toFixed(3);
+    $('en-eq-in').textContent = b.incoming.toFixed(1);
+    $('en-eq-alb').textContent = a.toFixed(3);
+    $('en-eq-abs').textContent = b.absorbed.toFixed(1);
+    $('en-eq-teff').textContent = b.tEffective.toFixed(1);
+    $('en-eq-teff-c').textContent = fmt.celsius(b.tEffective);
+    $('en-in').textContent = b.incoming.toFixed(1);
+    $('en-ref').textContent = b.reflected.toFixed(1);
+    $('en-abs').textContent = b.absorbed.toFixed(1);
+    $('en-out').textContent = b.absorbed.toFixed(1);
+    $('en-bar-ref').style.setProperty('--w', pct(b.reflected));
+    $('en-bar-abs').style.setProperty('--w', pct(b.absorbed));
+    $('en-bar-out').style.setProperty('--w', pct(b.absorbed));
+    $('en-incoming').textContent = b.incoming.toFixed(1);
+    $('en-absorbed').textContent = b.absorbed.toFixed(1);
+    $('en-dabs').textContent = fmt.signed(b.absorbed - NOW.absorbed, 1);
+    $('en-teff').textContent = fmt.celsius(b.tEffective);
+    $('en-teff-k').textContent = b.tEffective.toFixed(1);
+    $('en-tsurf').textContent = fmt.celsius(b.tSurface);
+    $('en-tsurf-k').textContent = b.tSurface.toFixed(1);
+    $('en-dt').textContent = fmt.signed(b.dTSurface, 2);
+    $('en-sens').textContent = b.sensitivity.toFixed(2);
+    document.querySelectorAll('.chip[data-alb]').forEach((c) => {
+      const v = energy.presetValue(c.dataset.alb);
+      c.classList.toggle('is-active', v !== null && Math.abs(v - a) < 0.0005);
+    });
+  },
+  presetValue(key) {
+    if (key === 'today') return NOW.albedo;
+    if (key === 'tilt') return tilt.albedo ?? null;
+    if (key === 'timeline') return time.albedo ?? null;
+    return parseFloat(key);
+  },
+  set(a) {
+    energy.albedo = Math.max(0.2, Math.min(0.48, a));
+    $('en-alb').value = energy.albedo.toFixed(3);
+    energy.update();
+  },
+};
+$('en-alb').addEventListener('input', (ev) => { energy.albedo = parseFloat(ev.target.value); energy.update(); });
+document.querySelectorAll('.chip[data-alb]').forEach((b) => b.addEventListener('click', () => {
+  const v = energy.presetValue(b.dataset.alb);
+  if (v !== null) energy.set(v);
+}));
+energy.update();
 
 // ---------- go ------------------------------------------------------------
 initScenes().catch((err) => {
