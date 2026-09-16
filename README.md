@@ -20,6 +20,17 @@ energy balance says that albedo means for temperature.
 
 Every readout is computed live from the orbital elements (see `js/orbital.js`).
 
+## Languages
+
+The page is written in English and can be switched to Danish with the EN / DA
+toggle in the top bar. The choice is remembered in `localStorage` and mirrored
+in the URL (`?lang=da`), so a link can open the page directly in Danish; with
+no saved choice, a browser whose preferred language is Danish starts in Danish.
+The English copy lives in `index.html`; every translated element carries a
+`data-i18n` key and the Danish text for it lives in `js/i18n.js`, which also
+holds the strings the scripts build at run time (button labels, readouts,
+chart and 3D labels) and switches the decimal separator to a comma for Danish.
+
 ## Running it
 
 It is a static site with no build step. Serve the folder with any static
@@ -90,4 +101,5 @@ js/stage.js     one WebGL context rendered into several page viewports
 js/scenes.js    the five 3D stages
 js/chart.js     time-series chart
 js/main.js      wiring between sliders, model and scenes
+js/i18n.js      language switch and the Danish translations
 ```
