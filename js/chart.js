@@ -2,13 +2,15 @@
  * Small-multiple time-series strip drawn on a 2D canvas: one panel per
  * quantity, a shared time axis, a scrub marker, pointer scrubbing.
  */
+import { t, n } from './i18n.js';
+
 const PANELS = [
-  { key: 'e', title: 'Eccentricity', color: '#f3b64a', min: 0, max: 0.06, fmt: (v) => v.toFixed(3) },
-  { key: 'eps', title: 'Obliquity (tilt)', color: '#5aa8ff', min: 22, max: 24.6, fmt: (v) => v.toFixed(2) + '°' },
-  { key: 'prec', title: 'Precession index e·sin ϖ', color: '#ef86b0', min: -0.06, max: 0.06, fmt: (v) => (v >= 0 ? '+' : '') + v.toFixed(3), zero: true },
-  { key: 'q65', title: '65°N midsummer sunlight', color: '#ff8d5c', min: 420, max: 580, fmt: (v) => v.toFixed(0) + ' W/m²' },
-  { key: 'albedo', title: 'Effective albedo (model)', color: '#b9e6ff', min: 0.27, max: 0.31, fmt: (v) => v.toFixed(3), fill: true },
-  { key: 'dT', title: 'Surface temperature vs today (Stefan–Boltzmann, Planck only)', color: '#ffd98a', min: -1.6, max: 0.8, fmt: (v) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2) + ' °C', zero: true },
+  { key: 'e', title: 'chart.e', color: '#f3b64a', min: 0, max: 0.06, fmt: (v) => v.toFixed(3) },
+  { key: 'eps', title: 'chart.eps', color: '#5aa8ff', min: 22, max: 24.6, fmt: (v) => v.toFixed(2) + '°' },
+  { key: 'prec', title: 'chart.prec', color: '#ef86b0', min: -0.06, max: 0.06, fmt: (v) => (v >= 0 ? '+' : '') + v.toFixed(3), zero: true },
+  { key: 'q65', title: 'chart.q65', color: '#ff8d5c', min: 420, max: 580, fmt: (v) => v.toFixed(0) + ' W/m²' },
+  { key: 'albedo', title: 'chart.albedo', color: '#b9e6ff', min: 0.27, max: 0.31, fmt: (v) => v.toFixed(3), fill: true },
+  { key: 'dT', title: 'chart.dT', color: '#ffd98a', min: -1.6, max: 0.8, fmt: (v) => (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(2) + ' °C', zero: true },
 ];
 
 // approximate interglacial peaks in the marine isotope record, kyr before present
@@ -83,16 +85,16 @@ export class TimeChart {
     const sans = css('--font-body') || 'system-ui, sans-serif';
     ctx.clearRect(0, 0, w, h);
 
-    const n = PANELS.length;
+    const count = PANELS.length;
     const gap = 14;
-    const plotH = (h - this.pad.top - this.pad.bottom - gap * (n - 1)) / n;
+    const plotH = (h - this.pad.top - this.pad.bottom - gap * (count - 1)) / count;
     const x0 = this.pad.left, x1 = w - this.pad.right;
 
     // interglacial ticks along the top
     ctx.font = `10px ${sans}`;
     ctx.fillStyle = muted;
     ctx.textAlign = 'left';
-    ctx.fillText('≈ interglacial peaks', x0, 10);
+    ctx.fillText(t('chart.peaks'), x0, 10);
     for (const t of INTERGLACIALS) {
       const x = this.x(t);
       ctx.fillStyle = muted;
@@ -154,14 +156,14 @@ export class TimeChart {
       ctx.fillStyle = muted;
       ctx.font = `10px ${font}`;
       ctx.textAlign = 'right';
-      ctx.fillText(p.fmt(p.max).replace(' W/m²', '').replace(' °C', ''), x0 - 6, y0 + 9);
-      ctx.fillText(p.fmt(p.min).replace(' W/m²', '').replace(' °C', ''), x0 - 6, y1);
+      ctx.fillText(n(p.fmt(p.max).replace(' W/m²', '').replace(' °C', '')), x0 - 6, y0 + 9);
+      ctx.fillText(n(p.fmt(p.min).replace(' W/m²', '').replace(' °C', '')), x0 - 6, y1);
 
       // title
       ctx.fillStyle = ink;
       ctx.font = `600 11px ${sans}`;
       ctx.textAlign = 'left';
-      ctx.fillText(p.title, x0 + 6, y0 + 11);
+      ctx.fillText(t(p.title), x0 + 6, y0 + 11);
 
       // marker + current value
       const cur = this.valueAt(p.key);
@@ -174,7 +176,7 @@ export class TimeChart {
       ctx.beginPath(); ctx.arc(mx, my, 5.5, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = p.color;
       ctx.beginPath(); ctx.arc(mx, my, 3.5, 0, Math.PI * 2); ctx.fill();
-      const txt = p.fmt(cur);
+      const txt = n(p.fmt(cur));
       ctx.font = `11px ${font}`;
       const tw = ctx.measureText(txt).width;
       const right = mx + 10 + tw > x1;
@@ -194,12 +196,13 @@ export class TimeChart {
     ctx.fillStyle = muted;
     ctx.font = `10px ${font}`;
     ctx.textAlign = 'center';
-    for (let t = Math.ceil(this.tMin / 100) * 100; t <= this.tMax; t += 100) {
-      const x = this.x(t);
-      ctx.fillText(t === 0 ? 'now' : (t > 0 ? '+' : '') + t, x, h - 8);
+    const nowLabel = t('time.now'), unitLabel = t('chart.unit');
+    for (let k = Math.ceil(this.tMin / 100) * 100; k <= this.tMax; k += 100) {
+      const x = this.x(k);
+      ctx.fillText(k === 0 ? nowLabel : (k > 0 ? '+' : '') + k, x, h - 8);
     }
     ctx.textAlign = 'right';
-    ctx.fillText('kyr', x1, h - 8 - 12);
+    ctx.fillText(unitLabel, x1, h - 8 - 12);
   }
 
   valueAt(key) {
