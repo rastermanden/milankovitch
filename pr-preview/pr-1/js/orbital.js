@@ -260,8 +260,9 @@ export function iceAlbedo(e, eps, varpi) {
 //
 //     (S/4)(1 − α) = ε σ Tₛ⁴
 //
-// and ε is calibrated once so that today's albedo gives today's 288 K
-// (15 °C). Differentiating shows why a small albedo change matters:
+// and ε is calibrated once so that today's albedo gives today's 288.15 K
+// (15.0 °C). The law needs absolute temperature, so everything here is in
+// kelvin; the page converts to °C for display. Differentiating shows why a small albedo change matters:
 //
 //     dTₛ/dF = Tₛ / (4 F)  ≈ 288 / (4 × 243)  ≈ 0.30 K per W/m²
 //
@@ -273,13 +274,14 @@ export function iceAlbedo(e, eps, varpi) {
 // ---------------------------------------------------------------------------
 
 export const SIGMA = 5.670374419e-8; // Stefan–Boltzmann constant, W m⁻² K⁻⁴
-export const T_SURFACE_TODAY = 288; // K, global mean surface temperature today
+export const T_SURFACE_TODAY = 288.15; // K (15.0 °C), global mean surface temperature today
+export const KELVIN = 273.15; // 0 °C in kelvin
 
 /** Present-day ice–albedo state, used to calibrate the grey atmosphere. */
 const TODAY = iceAlbedo(PRESENT.e, PRESENT.eps, PRESENT.varpi);
 export const ABSORBED_TODAY = TODAY.globalMean * (1 - TODAY.albedo);
 export const ALBEDO_TODAY = TODAY.albedo;
-/** Effective emissivity of the grey atmosphere, ε = F₀ / (σ · 288⁴) ≈ 0.62. */
+/** Effective emissivity of the grey atmosphere, ε = F₀ / (σ · 288.15⁴) ≈ 0.62. */
 export const EMISSIVITY = ABSORBED_TODAY / (SIGMA * T_SURFACE_TODAY ** 4);
 
 /**
@@ -294,7 +296,7 @@ export const EMISSIVITY = ABSORBED_TODAY / (SIGMA * T_SURFACE_TODAY ** 4);
  *  absorbed     part that warms the planet and must be re-radiated, W/m²
  *  tEffective   radiating temperature, [absorbed / σ]^¼, K
  *  tSurface     surface temperature under the grey atmosphere, [absorbed / εσ]^¼, K
- *  dTSurface    tSurface minus today's 288 K
+ *  dTSurface    tSurface minus today's 288.15 K (15.0 °C)
  *  sensitivity  Planck response dTₛ/dF = Tₛ / (4 absorbed), K per W/m²
  */
 export function energyBalance(albedo, incoming = TODAY.globalMean) {

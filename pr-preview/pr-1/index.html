@@ -129,8 +129,8 @@
             <div><dt>Ice cover</dt><dd><span id="tilt-icefrac">7.3</span><small>% of surface</small></dd></div>
             <div><dt>Effective albedo</dt><dd><span id="tilt-albedo">0.286</span></dd></div>
             <div><dt>Absorbed sunlight vs today</dt><dd><span id="tilt-absorbed">+0.0</span><small>W/m²</small></dd></div>
-            <div><dt>Radiating temperature</dt><dd><span id="tilt-teff">255.9</span><small>K</small></dd></div>
-            <div class="wide"><dt>Surface temperature vs today</dt><dd><span id="tilt-dt">+0.00</span><small>K · Stefan–Boltzmann, Planck response only</small></dd></div>
+            <div><dt>Radiating temperature</dt><dd><span id="tilt-teff">−17.3</span><small>°C</small></dd></div>
+            <div class="wide"><dt>Surface temperature vs today</dt><dd><span id="tilt-dt">+0.00</span><small>°C · Stefan–Boltzmann, Planck response only</small></dd></div>
           </dl>
           <p class="hint model-note">Ice edges and albedo come from this page's simple model, and the temperatures from the <a href="#energy">energy balance</a> below. Both are described in the <a href="#model">notes</a>.</p>
         </div>
@@ -201,8 +201,8 @@
             <div><dt>Ice edge, north</dt><dd><span id="time-iceN">70</span><small>°N</small></dd></div>
             <div><dt>Effective albedo</dt><dd><span id="time-albedo">0.286</span></dd></div>
             <div><dt>Absorbed sunlight vs today</dt><dd><span id="time-absorbed">+0.0</span><small>W/m²</small></dd></div>
-            <div><dt>Radiating temperature</dt><dd><span id="time-teff">255.9</span><small>K</small></dd></div>
-            <div class="wide"><dt>Surface temperature vs today</dt><dd><span id="time-dt">+0.00</span><small>K · Stefan–Boltzmann, Planck response only</small></dd></div>
+            <div><dt>Radiating temperature</dt><dd><span id="time-teff">−17.3</span><small>°C</small></dd></div>
+            <div class="wide"><dt>Surface temperature vs today</dt><dd><span id="time-dt">+0.00</span><small>°C · Stefan–Boltzmann, Planck response only</small></dd></div>
           </dl>
         </div>
       </div>
@@ -217,11 +217,11 @@
       <header class="cycle-head">
         <p class="eyebrow">From albedo to temperature</p>
         <h2>Why a few percent of reflected light matters</h2>
-        <p class="cycle-lede">Every square metre of Earth receives, averaged over the year and the whole globe, a quarter of the solar constant: about 340 W/m². A fraction <span class="mono">α</span>, the planetary albedo, bounces straight back to space. The rest is absorbed and warms the planet, and a warm planet radiates heat. The Stefan–Boltzmann law says a body at temperature <span class="mono">T</span> radiates <span class="mono">σT⁴</span>, so Earth settles where the two match: <span class="mono">(S/4)(1 − α) = σT⁴</span>. That gives a radiating temperature of about 255 K, which is what a satellite sees. The surface is 33 K warmer because greenhouse gases intercept part of the outgoing infrared. Move the albedo and follow the budget through to temperature. The ice from the tilt lab and the timeline lands on the same equation.</p>
+        <p class="cycle-lede">Every square metre of Earth receives, averaged over the year and the whole globe, a quarter of the solar constant: about 340 W/m². A fraction <span class="mono">α</span>, the planetary albedo, bounces straight back to space. The rest is absorbed and warms the planet, and a warm planet radiates heat. The Stefan–Boltzmann law says a body at temperature <span class="mono">T</span> radiates <span class="mono">σT⁴</span>, so Earth settles where the two match: <span class="mono">(S/4)(1 − α) = σT⁴</span>. That gives a radiating temperature of about −18 °C, which is what a satellite sees. The surface, at about 15 °C, is 33 degrees warmer because greenhouse gases intercept part of the outgoing infrared. The law itself needs absolute temperature, so the equation is solved in kelvin and the results are shown in degrees Celsius. Move the albedo and follow the budget through to temperature. The ice from the tilt lab and the timeline lands on the same equation.</p>
       </header>
       <div class="lab">
         <div class="budget-card">
-          <p class="equation" aria-label="Energy balance equation with live numbers"><span class="eq-line"><span class="mono">(S / 4)(1 − α)</span><span class="eq-op">=</span><span class="mono">σ T<sub>e</sub><sup>4</sup></span></span><span class="eq-line eq-values"><span class="mono"><b id="en-eq-in">340.3</b> × (1 − <b id="en-eq-alb">0.286</b>)</span><span class="eq-op">=</span><span class="mono"><b id="en-eq-abs">243.0</b> W/m²</span><span class="eq-op">→</span><span class="mono">T<sub>e</sub> = <b id="en-eq-teff">255.9</b> K</span></span></p>
+          <p class="equation" aria-label="Energy balance equation with live numbers"><span class="eq-line"><span class="mono">(S / 4)(1 − α)</span><span class="eq-op">=</span><span class="mono">σ T<sub>e</sub><sup>4</sup></span></span><span class="eq-line eq-values"><span class="mono"><b id="en-eq-in">340.3</b> × (1 − <b id="en-eq-alb">0.286</b>)</span><span class="eq-op">=</span><span class="mono"><b id="en-eq-abs">243.0</b> W/m²</span><span class="eq-op">→</span><span class="mono">T<sub>e</sub> = <b id="en-eq-teff">255.9</b> K = <b id="en-eq-teff-c">−17.3</b> °C</span></span></p>
           <div class="budget" role="img" aria-label="Bars showing incoming sunlight split into reflected and absorbed parts, and the equal amount radiated to space">
             <div class="budget-row in"><span class="budget-label">Sunlight in <small>S / 4</small></span><span class="budget-bar"><i id="en-bar-in" style="--w: 100%"></i></span><b><span id="en-in">340.3</span><small>W/m²</small></b></div>
             <div class="budget-row reflected"><span class="budget-label">Reflected <small>α · S / 4</small></span><span class="budget-bar"><i id="en-bar-ref" style="--w: 28.6%"></i></span><b><span id="en-ref">97.3</span><small>W/m²</small></b></div>
@@ -249,12 +249,12 @@
             <div><dt>Sunlight in, S/4</dt><dd><span id="en-incoming">340.3</span><small>W/m²</small></dd></div>
             <div><dt>Absorbed = radiated</dt><dd><span id="en-absorbed">243.0</span><small>W/m²</small></dd></div>
             <div><dt>Absorbed vs today</dt><dd><span id="en-dabs">+0.0</span><small>W/m²</small></dd></div>
-            <div><dt>Radiating temperature T<sub>e</sub></dt><dd><span id="en-teff">255.9</span><small>K</small></dd></div>
-            <div><dt>Surface temperature</dt><dd><span id="en-tsurf">288.0</span><small>K · <span id="en-tsurf-c">15.0</span> °C</small></dd></div>
-            <div><dt>Surface vs today</dt><dd><span id="en-dt">+0.00</span><small>K</small></dd></div>
-            <div class="wide"><dt>Planck response dT / dF</dt><dd><span id="en-sens">0.30</span><small>K per W/m² · from T / 4F, no feedbacks</small></dd></div>
+            <div><dt>Radiating temperature T<sub>e</sub></dt><dd><span id="en-teff">−17.3</span><small>°C · <span id="en-teff-k">255.9</span> K</small></dd></div>
+            <div><dt>Surface temperature</dt><dd><span id="en-tsurf">15.0</span><small>°C · <span id="en-tsurf-k">288.1</span> K</small></dd></div>
+            <div><dt>Surface vs today</dt><dd><span id="en-dt">+0.00</span><small>°C</small></dd></div>
+            <div class="wide"><dt>Planck response dT / dF</dt><dd><span id="en-sens">0.30</span><small>°C per W/m² · from T / 4F, no feedbacks</small></dd></div>
           </dl>
-          <p class="hint model-note">Surface temperature uses a grey atmosphere calibrated to 288 K today, so it carries the same 33 K greenhouse offset at every albedo. Only the Planck response is included; water-vapour and cloud feedbacks roughly double or triple it, and the real ice ages also had much lower CO₂.</p>
+          <p class="hint model-note">Surface temperature uses a grey atmosphere calibrated to 15.0 °C today, so it carries the same 33-degree greenhouse offset at every albedo. Only the Planck response is included; water-vapour and cloud feedbacks roughly double or triple it, and the real ice ages also had much lower CO₂.</p>
         </div>
       </div>
     </section>
@@ -267,7 +267,7 @@
         <li><b>Sunlight.</b> Daily-mean insolation at the top of the atmosphere uses the standard formula with a solar constant of 1361 W/m². “65°N midsummer sunlight” is the daily mean on the June solstice, the classic Milankovitch diagnostic.</li>
         <li><b>Ice edges.</b> A toy model: the equatorward edge of each polar ice cap moves linearly with that hemisphere's midsummer sunlight (0.34° of latitude per W/m² in the north, less in the south, which is anchored by Antarctica), starting from 70°N and 66°S today. Real ice sheets take thousands of years to respond and depend on land, ocean and CO₂; this page shows the equilibrium tendency, not the history.</li>
         <li><b>Effective albedo.</b> Ice-covered latitudes reflect 66% of sunlight, everything else 27%. The planetary value is the average weighted by each latitude's annual sunlight, so ice near the poles counts for less than it would by area, and a larger tilt, which brightens the poles, makes polar ice matter more. “Absorbed sunlight vs today” is the resulting change in the global-mean absorbed solar power; for scale, doubling CO₂ adds about 4 W/m².</li>
-        <li><b>Energy balance and temperature.</b> Global annual-mean sunlight at the top of the atmosphere is <span class="mono">S/(4√(1 − e²))</span>, about 340 W/m². The Stefan–Boltzmann law, radiated power <span class="mono">σT⁴</span> with <span class="mono">σ = 5.67 × 10⁻⁸ W m⁻² K⁻⁴</span>, fixes the radiating temperature at <span class="mono">T<sub>e</sub> = [S(1 − α)/4σ]<sup>¼</sup></span> ≈ 255 K. The surface temperature uses a grey atmosphere, <span class="mono">(S/4)(1 − α) = εσT<sub>s</sub>⁴</span>, with the effective emissivity <span class="mono">ε ≈ 0.62</span> chosen so that today's albedo gives 288 K. Differentiating gives the Planck response <span class="mono">dT<sub>s</sub>/dF = T<sub>s</sub>/4F</span> ≈ 0.30 K per W/m²: a rise in albedo of 0.01 removes about 3.4 W/m² and cools the surface by about 1 K before any feedback. Water vapour, clouds and lapse rate roughly double or triple that in the real climate, and the ice ages' 5–6 K cooling needed far larger ice sheets and lower CO₂ than this toy has.</li>
+        <li><b>Energy balance and temperature.</b> Global annual-mean sunlight at the top of the atmosphere is <span class="mono">S/(4√(1 − e²))</span>, about 340 W/m². The Stefan–Boltzmann law, radiated power <span class="mono">σT⁴</span> with <span class="mono">σ = 5.67 × 10⁻⁸ W m⁻² K⁻⁴</span>, fixes the radiating temperature at <span class="mono">T<sub>e</sub> = [S(1 − α)/4σ]<sup>¼</sup></span> ≈ 255 K, or about −18 °C. The surface temperature uses a grey atmosphere, <span class="mono">(S/4)(1 − α) = εσT<sub>s</sub>⁴</span>, with the effective emissivity <span class="mono">ε ≈ 0.62</span> chosen so that today's albedo gives 288.15 K, that is 15.0 °C. The law needs absolute temperature, so the arithmetic is done in kelvin; the page displays degrees Celsius, and a difference is the same number in either unit. Differentiating gives the Planck response <span class="mono">dT<sub>s</sub>/dF = T<sub>s</sub>/4F</span> ≈ 0.30 °C per W/m²: a rise in albedo of 0.01 removes about 3.4 W/m² and cools the surface by about 1 °C before any feedback. Water vapour, clouds and lapse rate roughly double or triple that in the real climate, and the ice ages' 5–6 °C cooling needed far larger ice sheets and lower CO₂ than this toy has.</li>
         <li><b>Not a climate model.</b> There is no ocean, no carbon cycle, no ice dynamics and no lag. Milankovitch forcing is the pacemaker; feedbacks turn its faint beat into ice ages.</li>
       </ul>
       <p class="sources">Further reading: Hays, Imbrie &amp; Shackleton, <i>Variations in the Earth's Orbit: Pacemaker of the Ice Ages</i>, Science (1976) · Laskar et al., <i>A long-term numerical solution for the insolation quantities of the Earth</i>, A&amp;A (2004) · M. Milanković, <i>Kanon der Erdbestrahlung</i> (1941).</p>

@@ -1,9 +1,10 @@
-import { orbitalElements, PRESENT, climate, energyBalance, dailyInsolation, distanceAU, trueAnomalyFromMean, meanAnomalyFromTrue, perihelionDate, seasonAtPerihelion, dayOfYearToDate, timeSeries } from './orbital.js';
+import { orbitalElements, PRESENT, climate, energyBalance, KELVIN, dailyInsolation, distanceAU, trueAnomalyFromMean, meanAnomalyFromTrue, perihelionDate, seasonAtPerihelion, dayOfYearToDate, timeSeries } from './orbital.js';
 
 const $ = (id) => document.getElementById(id);
 const fmt = {
   signed: (v, d = 1) => (v > 0 ? '+' : v < 0 ? '−' : '±') + Math.abs(v).toFixed(d),
   signedPlain: (v, d) => (v < 0 ? '−' : '+') + Math.abs(v).toFixed(d),
+  celsius: (k, d = 1) => (k - KELVIN < 0 ? '−' : '') + Math.abs(k - KELVIN).toFixed(d),
 };
 const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -138,7 +139,7 @@ const tilt = {
     $('tilt-icefrac').textContent = (c.iceFraction * 100).toFixed(1);
     $('tilt-albedo').textContent = c.albedo.toFixed(3);
     $('tilt-absorbed').textContent = fmt.signed(c.absorbed - NOW.absorbed, 1);
-    $('tilt-teff').textContent = c.tEffective.toFixed(1);
+    $('tilt-teff').textContent = fmt.celsius(c.tEffective);
     $('tilt-dt').textContent = fmt.signed(c.dTSurface, 2);
     tilt.albedo = c.albedo;
     document.querySelectorAll('.chip[data-eps]').forEach((b) => b.classList.toggle('is-active', Math.abs(parseFloat(b.dataset.eps) - tilt.eps) < 0.05));
@@ -205,7 +206,7 @@ const time = {
     $('time-iceN').textContent = c.iceNorth >= 89.5 ? 'none' : c.iceNorth.toFixed(0);
     $('time-albedo').textContent = c.albedo.toFixed(3);
     $('time-absorbed').textContent = fmt.signed(c.absorbed - NOW.absorbed, 1);
-    $('time-teff').textContent = c.tEffective.toFixed(1);
+    $('time-teff').textContent = fmt.celsius(c.tEffective);
     $('time-dt').textContent = fmt.signed(c.dTSurface, 2);
     time.albedo = c.albedo;
     document.querySelectorAll('.chip[data-t]').forEach((b) => b.classList.toggle('is-active', Math.abs(parseFloat(b.dataset.t) - t) < 0.3));
@@ -251,6 +252,7 @@ const energy = {
     $('en-eq-alb').textContent = a.toFixed(3);
     $('en-eq-abs').textContent = b.absorbed.toFixed(1);
     $('en-eq-teff').textContent = b.tEffective.toFixed(1);
+    $('en-eq-teff-c').textContent = fmt.celsius(b.tEffective);
     $('en-in').textContent = b.incoming.toFixed(1);
     $('en-ref').textContent = b.reflected.toFixed(1);
     $('en-abs').textContent = b.absorbed.toFixed(1);
@@ -261,9 +263,10 @@ const energy = {
     $('en-incoming').textContent = b.incoming.toFixed(1);
     $('en-absorbed').textContent = b.absorbed.toFixed(1);
     $('en-dabs').textContent = fmt.signed(b.absorbed - NOW.absorbed, 1);
-    $('en-teff').textContent = b.tEffective.toFixed(1);
-    $('en-tsurf').textContent = b.tSurface.toFixed(1);
-    $('en-tsurf-c').textContent = (b.tSurface - 273.15).toFixed(1);
+    $('en-teff').textContent = fmt.celsius(b.tEffective);
+    $('en-teff-k').textContent = b.tEffective.toFixed(1);
+    $('en-tsurf').textContent = fmt.celsius(b.tSurface);
+    $('en-tsurf-k').textContent = b.tSurface.toFixed(1);
     $('en-dt').textContent = fmt.signed(b.dTSurface, 2);
     $('en-sens').textContent = b.sensitivity.toFixed(2);
     document.querySelectorAll('.chip[data-alb]').forEach((c) => {
