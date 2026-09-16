@@ -67,10 +67,12 @@ as they are.
 - **Energy balance and temperature** apply the Stefan–Boltzmann law to that
   albedo. Global annual-mean sunlight is S/(4√(1−e²)) ≈ 340 W/m²; the
   absorbed part (1−α) of it must be re-radiated as σT⁴, which fixes the
-  radiating temperature Tₑ = [S(1−α)/4σ]^¼ ≈ 255 K. Surface temperature
-  uses a grey atmosphere, (S/4)(1−α) = εσTₛ⁴, with ε ≈ 0.62 calibrated so
-  today gives 288 K. The Planck response Tₛ/4F ≈ 0.30 K per W/m² is all
-  that is included: no water-vapour, cloud or lapse-rate feedbacks, no CO₂.
+  radiating temperature Tₑ = [S(1−α)/4σ]^¼ ≈ 255 K (−18 °C). Surface
+  temperature uses a grey atmosphere, (S/4)(1−α) = εσTₛ⁴, with ε ≈ 0.62
+  calibrated so today gives 288.15 K (15.0 °C). The arithmetic runs in
+  kelvin, as the law requires; the page shows degrees Celsius. The Planck
+  response Tₛ/4F ≈ 0.30 °C per W/m² is all that is included: no
+  water-vapour, cloud or lapse-rate feedbacks, no CO₂.
 
 This is an explainer, not a climate model. There is no ocean, no carbon
 cycle, no ice dynamics and no lag.
