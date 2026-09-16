@@ -30,8 +30,26 @@ npx http-server -p 8080 .
 ```
 
 and open `http://localhost:8080`. Three.js and the fonts are loaded from
-CDNs, so the page needs internet access. It can be published as-is with
-GitHub Pages (Settings → Pages → deploy from the repository root).
+CDNs, so the page needs internet access.
+
+## Publishing and PR previews
+
+Two GitHub Actions workflows publish the site to the `gh-pages` branch, so
+GitHub Pages should be set to serve that branch from its root (Settings →
+Pages → Deploy from a branch → `gh-pages` / `/ (root)`):
+
+- `.github/workflows/deploy.yml` runs on every push to `main` and publishes
+  the site to the root of `gh-pages`.
+- `.github/workflows/pr-preview.yml` runs on every pull request and publishes
+  a preview to `pr-preview/pr-<number>/` on the same branch, at
+  `https://<owner>.github.io/<repo>/pr-preview/pr-<number>/`. The link is
+  posted as a comment on the PR, the preview is refreshed on each push, and
+  it is deleted when the PR is closed or merged. Pull requests from forks do
+  not get a preview, because their workflow token cannot push to the branch.
+
+Both workflows copy the site into a `_site` folder first, leaving out
+`README.md` and `.github`, and add `.nojekyll` so Pages serves the files
+as they are.
 
 ## How the numbers are made
 
@@ -60,6 +78,8 @@ cycle, no ice dynamics and no lag.
 ## Files
 
 ```
+.github/workflows/deploy.yml       publish main to gh-pages
+.github/workflows/pr-preview.yml   publish a preview per pull request
 index.html      page structure and copy
 css/style.css   styles (single dark theme)
 js/orbital.js   Berger series, insolation, ice–albedo model, energy balance
