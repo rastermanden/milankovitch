@@ -37,43 +37,17 @@ export const MIS = [
  * North European stages (the Weichsel, Saale, Elster nomenclature of
  * Germany, the Netherlands and Scandinavia) with their usual equivalents.
  * kind: 'warm' interglacial, 'cold' glacial, 'mixed' a complex of both.
+ * The display name, short label and note for each stage are looked up in
+ * i18n.js as stage.<key>.name / .short / .note, in both languages.
  */
 export const STAGES = [
-  {
-    name: 'Holocene', short: 'Hol.', kind: 'warm', from: -11.7, to: 0, mis: '1',
-    alps: 'Holocene', britain: 'Flandrian', america: 'Holocene',
-    note: 'The current interglacial: farming, cities, and us.',
-  },
-  {
-    name: 'Weichselian', short: 'Weichsel', kind: 'cold', from: -115, to: -11.7, mis: '5d–2',
-    alps: 'Würm', britain: 'Devensian', america: 'Wisconsin',
-    note: 'The last ice age. Ice reached its greatest extent about 21 kyr ago.',
-  },
-  {
-    name: 'Eemian', short: 'Eem', kind: 'warm', from: -130, to: -115, mis: '5e',
-    alps: 'Riss–Würm', britain: 'Ipswichian', america: 'Sangamonian',
-    note: 'Last interglacial, a little warmer than today; hippos in the Thames and Rhine.',
-  },
-  {
-    name: 'Saalian complex', short: 'Saale', kind: 'cold', from: -374, to: -130, mis: '10–6',
-    alps: 'Riss', britain: 'Wolstonian', america: 'Illinoian',
-    note: 'Three cold stages (MIS 10, 8, 6) with warm interludes in MIS 9 and 7. The Drenthe and Warthe ice advances in MIS 6 were the largest.',
-  },
-  {
-    name: 'Holsteinian', short: 'Holstein', kind: 'warm', from: -424, to: -374, mis: '11',
-    alps: 'Mindel–Riss', britain: 'Hoxnian', america: 'pre-Illinoian',
-    note: 'A long, mild interglacial during a nearly circular orbit, much like the Holocene.',
-  },
-  {
-    name: 'Elsterian', short: 'Elster', kind: 'cold', from: -478, to: -424, mis: '12',
-    alps: 'Mindel', britain: 'Anglian', america: 'pre-Illinoian',
-    note: 'One of the most extensive glaciations; ice reached the southern North Sea and cut the Strait of Dover.',
-  },
-  {
-    name: 'Cromerian complex', short: 'Cromerian', kind: 'mixed', from: -866, to: -478, mis: '21–13',
-    alps: 'Günz, Haslach', britain: 'Cromerian', america: 'pre-Illinoian',
-    note: 'Four interglacials (Cromerian I–IV) and three glacials (A, B, C); the Don glaciation in MIS 16 was the largest.',
-  },
+  { key: 'holocene', kind: 'warm', from: -11.7, to: 0, mis: '1', alps: 'Holocene', britain: 'Flandrian', america: 'Holocene' },
+  { key: 'weichselian', kind: 'cold', from: -115, to: -11.7, mis: '5d–2', alps: 'Würm', britain: 'Devensian', america: 'Wisconsin' },
+  { key: 'eemian', kind: 'warm', from: -130, to: -115, mis: '5e', alps: 'Riss–Würm', britain: 'Ipswichian', america: 'Sangamonian' },
+  { key: 'saalian', kind: 'cold', from: -374, to: -130, mis: '10–6', alps: 'Riss', britain: 'Wolstonian', america: 'Illinoian' },
+  { key: 'holsteinian', kind: 'warm', from: -424, to: -374, mis: '11', alps: 'Mindel–Riss', britain: 'Hoxnian', america: 'pre-Illinoian' },
+  { key: 'elsterian', kind: 'cold', from: -478, to: -424, mis: '12', alps: 'Mindel', britain: 'Anglian', america: 'pre-Illinoian' },
+  { key: 'cromerian', kind: 'mixed', from: -866, to: -478, mis: '21–13', alps: 'Günz, Haslach', britain: 'Cromerian', america: 'pre-Illinoian' },
 ];
 
 /** Marine isotope stage containing time t (kyr), or null in the future. */

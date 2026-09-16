@@ -5,6 +5,12 @@
 import * as THREE from 'three';
 import { Stage, REDUCED_MOTION, makeSun, makeGlowSprite, makeLatitudeRing, makeAxisRod, makeDot, makeLine } from './stage.js';
 import { createEarth, axisDirection } from './earth.js';
+import { t, n, onLanguageChange } from './i18n.js';
+
+// labels whose text is a translation key; refreshed when the language changes
+const i18nLabels = [];
+function tl(label, key) { label.key = key; label.div.textContent = t(key); i18nLabels.push(label); return label; }
+onLanguageChange(() => i18nLabels.forEach((l) => { l.div.textContent = t(l.key); }));
 
 const COLORS = {
   gold: '#f3b64a',
@@ -72,7 +78,7 @@ export function buildOrbitScene(el) {
 
   const sun = makeSun(0.4, { glow: 7 });
   scene.add(sun);
-  Object.assign(stage.addLabel(sun, 'Sun', 'label-sun'), { dy: 34 });
+  Object.assign(tl(stage.addLabel(sun, '', 'label-sun'), 'scene.sun'), { dy: 34 });
 
   const earth = createEarth(0.32, { segments: 64, clouds: false });
   scene.add(earth.group);
@@ -89,13 +95,12 @@ export function buildOrbitScene(el) {
 
   const peri = makeDot(0.06, COLORS.gold); scene.add(peri);
   const aph = makeDot(0.06, COLORS.faint); scene.add(aph);
-  Object.assign(stage.addLabel(peri, 'Perihelion', 'label-mark'), { dy: 16 });
-  Object.assign(stage.addLabel(aph, 'Aphelion', 'label-mark'), { dy: 16 });
-  const seasonNames = ['March equinox', 'June solstice', 'September equinox', 'December solstice'];
-  const seasonDots = seasonNames.map((name) => {
+  Object.assign(tl(stage.addLabel(peri, '', 'label-mark'), 'scene.perihelion'), { dy: 16 });
+  Object.assign(tl(stage.addLabel(aph, '', 'label-mark'), 'scene.aphelion'), { dy: 16 });
+  const seasonDots = [0, 1, 2, 3].map((i) => {
     const d = makeDot(0.045, COLORS.blue);
     scene.add(d);
-    Object.assign(stage.addLabel(d, name, 'label-season'), { dy: -15 });
+    Object.assign(tl(stage.addLabel(d, '', 'label-season'), 'season.' + i), { dy: -15 });
     return d;
   });
   const distLabel = stage.addLabel(new THREE.Vector3(), '', 'label-value');
@@ -138,7 +143,7 @@ export function buildOrbitScene(el) {
     distLine.computeLineDistances();
     distLabel.anchor.copy(earth.group.position).multiplyScalar(0.5);
     distLabel.dy = -13;
-    distLabel.div.textContent = `${(radius(state.nu, state.e) / A).toFixed(3)} AU`;
+    distLabel.div.textContent = `${n((radius(state.nu, state.e) / A).toFixed(3))} AU`;
   }
 
   stage.onTick((dt) => { if (!REDUCED_MOTION) earth.rotate(dt, 0.6); });
@@ -193,7 +198,7 @@ export function buildTiltScene(el) {
   };
   const anchors = { equator: anchor(0, 60), arctic: anchor(66.56, 40), ice: anchor(70, 130), tropic: anchor(23.44, 60) };
   const labels = {
-    equator: stage.addLabel(anchors.equator, 'Equator', 'label-ring'),
+    equator: tl(stage.addLabel(anchors.equator, '', 'label-ring'), 'scene.equator'),
     tropic: stage.addLabel(anchors.tropic, 'Tropic of Cancer 23.4°', 'label-ring'),
     arctic: stage.addLabel(anchors.arctic, 'Arctic Circle 66.6°', 'label-ring label-gold'),
     ice: stage.addLabel(anchors.ice, 'Ice edge 70°', 'label-ring label-ice'),
@@ -212,7 +217,7 @@ export function buildTiltScene(el) {
   const glow = makeGlowSprite(8, '#ffcf7a', 0.9);
   glow.position.copy(sunDir).multiplyScalar(6.5);
   scene.add(glow);
-  const sunLabel = stage.addLabel(new THREE.Vector3().copy(sunDir).multiplyScalar(2.6), 'sunlight →', 'label-sun');
+  const sunLabel = tl(stage.addLabel(new THREE.Vector3().copy(sunDir).multiplyScalar(2.6), '', 'label-sun'), 'scene.sunlight');
   sunLabel.dy = -14;
 
   const state = { eps: 23.44, lambda: 90, iceNorth: 70, iceSouth: 66 };
@@ -234,12 +239,13 @@ export function buildTiltScene(el) {
     setAnchor(anchors.arctic, 90 - state.eps, 40);
     setAnchor(anchors.tropic, state.eps, 60);
     setAnchor(anchors.ice, state.iceNorth, 130);
-    labels.arctic.div.textContent = `Arctic Circle ${(90 - state.eps).toFixed(1)}°`;
-    labels.tropic.div.textContent = `Tropic of Cancer ${state.eps.toFixed(1)}°`;
-    labels.ice.div.textContent = state.iceNorth >= 89.5 ? 'Ice-free pole' : `Ice edge ${state.iceNorth.toFixed(0)}°N`;
+    labels.arctic.div.textContent = `${t('scene.arctic')} ${n((90 - state.eps).toFixed(1))}°`;
+    labels.tropic.div.textContent = `${t('scene.tropic')} ${n(state.eps.toFixed(1))}°`;
+    labels.ice.div.textContent = state.iceNorth >= 89.5 ? t('scene.iceFree') : `${t('scene.iceEdge')} ${state.iceNorth.toFixed(0)}°N`;
     rings.iceN.visible = state.iceNorth < 89.5;
   }
   stage.onTick((dt) => { if (!REDUCED_MOTION) earth.rotate(dt, 0.1); });
+  onLanguageChange(update);
   update();
   return {
     stage,
@@ -273,7 +279,7 @@ export function buildWobbleScene(el) {
   coneGroup.add(ring);
   const upright = makeLine([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, L * 1.05, 0)], COLORS.faint, 0.6, true);
   scene.add(upright);
-  Object.assign(stage.addLabel(new THREE.Vector3(0, L * 1.05, 0), 'perpendicular to orbit', 'label-ring'), { dy: -12 });
+  Object.assign(tl(stage.addLabel(new THREE.Vector3(0, L * 1.05, 0), '', 'label-ring'), 'scene.perpendicular'), { dy: -12 });
 
   function buildCone(eps) {
     const e = THREE.MathUtils.degToRad(eps);
@@ -298,7 +304,7 @@ export function buildWobbleScene(el) {
   const sun = makeSun(0.55, { glow: 7 });
   sun.position.copy(sunPos);
   scene.add(sun);
-  Object.assign(stage.addLabel(sun, 'Sun · Earth at perihelion', 'label-sun'), { dy: 40 });
+  Object.assign(tl(stage.addLabel(sun, '', 'label-sun'), 'scene.sunPerihelion'), { dy: 40 });
   const sunDir = sunPos.clone().normalize();
   earth.setSunDir(sunDir);
   const sunAz = azimuthOf(sunDir);
@@ -344,7 +350,7 @@ export function buildTimelineScene(el) {
   glow.position.copy(sunDir).multiplyScalar(4.6);
   scene.add(glow);
   const sunAz = azimuthOf(sunDir);
-  const sunLabel = stage.addLabel(new THREE.Vector3().copy(sunDir).multiplyScalar(2.5), 'midsummer sun →', 'label-sun');
+  const sunLabel = tl(stage.addLabel(new THREE.Vector3().copy(sunDir).multiplyScalar(2.5), '', 'label-sun'), 'scene.midsummerSun');
   sunLabel.dy = -14;
 
   const state = { eps: 23.44, iceNorth: 70, iceSouth: 66, sunStrength: 1 };
