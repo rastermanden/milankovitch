@@ -1,5 +1,6 @@
 import { orbitalElements, PRESENT, climate, energyBalance, KELVIN, dailyInsolation, distanceAU, trueAnomalyFromMean, meanAnomalyFromTrue, perihelionDayOfYear, seasonKeyAtPerihelion, dayOfYearToMonthDay, timeSeries } from './orbital.js';
 import { t, n, formatDate, formatKyr, initLanguage, onLanguageChange } from './i18n.js';
+import { STAGES, stageAt, misAt } from './stages.js';
 
 const $ = (id) => document.getElementById(id);
 // readout setters: every number shown on the page passes through n(), which
@@ -216,6 +217,15 @@ const time = {
     set('time-teff', fmt.celsius(c.tEffective));
     set('time-dt', fmt.signed(c.dTSurface, 2));
     time.albedo = c.albedo;
+    const st = stageAt(kyr), m = misAt(kyr);
+    if (st) {
+      const kind = t(`stage.${st.kind === 'warm' ? 'interglacial' : st.kind === 'cold' ? 'glacial' : 'mixed'}`);
+      $('time-stage').textContent = t(`stage.${st.key}.name`);
+      $('time-stage-note').textContent = `${kind} · MIS ${m ? m.n : st.mis}${m ? ` (${t(m.warm ? 'stage.warm' : 'stage.cold')})` : ''}`;
+    } else {
+      $('time-stage').textContent = t('stage.future');
+      $('time-stage-note').textContent = t('stage.futureNote');
+    }
     document.querySelectorAll('.chip[data-t]').forEach((b) => b.classList.toggle('is-active', Math.abs(parseFloat(b.dataset.t) - kyr) < 0.3));
     if (time.chart) time.chart.setTime(kyr);
     if (scenes) {
@@ -238,6 +248,23 @@ const timePlayer = player($('time-play'), {
     if (t >= 100) { timePlayer.started = false; return false; }
   },
 });
+
+// table of the named stages and their regional equivalents, rebuilt per language
+function renderStagesTable() {
+  const kindKey = (k) => (k === 'warm' ? 'stage.interglacial' : k === 'cold' ? 'stage.glacial' : 'stage.both');
+  $('stages-body').innerHTML = STAGES.map((st) => `
+  <tr class="is-${st.kind}">
+    <th scope="row">${t(`stage.${st.key}.name`)}</th>
+    <td>${t(kindKey(st.kind))}</td>
+    <td class="mono">${st.mis}</td>
+    <td class="mono">${Math.abs(st.to) < 0.25 ? t('time.now') : n(Math.abs(st.to))} – ${n(Math.min(800, Math.abs(st.from)))}${Math.abs(st.from) > 800 ? '+' : ''}</td>
+    <td>${st.alps}</td>
+    <td>${st.britain}</td>
+    <td>${st.america}</td>
+    <td class="note">${t(`stage.${st.key}.note`)}</td>
+  </tr>`).join('');
+}
+renderStagesTable();
 
 import('./chart.js').then(({ TimeChart }) => {
   time.chart = new TimeChart($('chart'), SERIES, { onScrub: (t) => { timePlayer.stop(); time.update(Math.round(t * 2) / 2); } });
@@ -305,6 +332,7 @@ energy.update();
 // ?lang=da (or a saved choice) also gets its readouts and button labels redone
 onLanguageChange(() => {
   ecc.update(); tilt.update(); prec.update(); time.update(time.t); energy.update();
+  renderStagesTable();
   players.forEach((p) => p.refresh());
   if (time.chart) time.chart.draw();
 });

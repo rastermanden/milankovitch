@@ -15,7 +15,7 @@ energy balance says that albedo means for temperature.
 | Eccentricity | Sun, elliptical orbit, Earth with tilted axis, season markers | eccentricity, day of year, play |
 | Obliquity | Earth with axis, tropics, polar circles and ice edges | tilt (presets 22.1° / 23.4° / 24.5°), season |
 | Precession | Earth at perihelion, axis sweeping its cone | longitude of perihelion, play |
-| 800 kyr timeline | Earth at northern midsummer with modelled ice | time slider (−800 to +100 kyr), play, scrubbable chart |
+| 800 kyr timeline | Earth at northern midsummer with modelled ice | time slider (−800 to +100 kyr), play, scrubbable chart with the named ice ages and marine isotope stages along the top, and a table of the stage names in Europe, the Alps, Britain and North America |
 | Energy balance | Live energy budget (in, reflected, absorbed, radiated) | albedo slider, presets, pull the albedo from the tilt lab or timeline |
 
 Every readout is computed live from the orbital elements (see `js/orbital.js`).
@@ -85,6 +85,14 @@ as they are.
   response Tₛ/4F ≈ 0.30 °C per W/m² is all that is included: no
   water-vapour, cloud or lapse-rate feedbacks, no CO₂.
 
+- **Ice ages.** The chart carries two bands: the North European stage
+  names (Holocene, Weichselian, Eemian, Saalian complex, Holsteinian,
+  Elsterian, Cromerian complex) and the marine isotope stages MIS 1–21,
+  odd = warm, even = cold, with boundary ages from the LR04 benthic stack
+  (Lisiecki & Raymo 2005). Boundaries, structure and the regional equivalents
+  live in `js/stages.js`; the stage names and notes, in both languages, in
+  `js/i18n.js`.
+
 This is an explainer, not a climate model. There is no ocean, no carbon
 cycle, no ice dynamics and no lag.
 
@@ -99,7 +107,8 @@ js/orbital.js   Berger series, insolation, ice–albedo model, energy balance
 js/earth.js     procedural Earth texture and ice-cap shader
 js/stage.js     one WebGL context rendered into several page viewports
 js/scenes.js    the five 3D stages
-js/chart.js     time-series chart
+js/chart.js     time-series chart with the ice-age bands
+js/stages.js    named ice ages and marine isotope stages, LR04 ages
 js/main.js      wiring between sliders, model and scenes
 js/i18n.js      language switch and the Danish translations
 ```
